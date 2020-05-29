@@ -16,4 +16,5 @@ import org.springframework.stereotype.Service;
 @Service
 public class FlywaySchemaHistoryService extends ServiceImpl<FlywaySchemaHistoryMapper, FlywaySchemaHistory> {
 
+
 }

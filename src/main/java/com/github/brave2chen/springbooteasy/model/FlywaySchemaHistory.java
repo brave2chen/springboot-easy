@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ *    FlywaySchemaHistory对象
  * </p>
  *
  * @author brave2chen

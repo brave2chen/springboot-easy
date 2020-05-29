@@ -1,4 +1,11 @@
-GET http://localhost:80/code/generate?table=flyway_schema_history
+GET http://localhost/flywaySchemaHistory/page?installedOn=2020-05-28 13:35:02
+Accept: application/json
+
+###
+
+
+###
+GET http://localhost/code/generate?table=flyway_schema_history
 Accept: application/json
 
 ###
