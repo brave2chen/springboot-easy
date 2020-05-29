@@ -1,0 +1,4 @@
+GET http://localhost:80/code/generate?table=flyway_schema_history
+Accept: application/json
+
+###
