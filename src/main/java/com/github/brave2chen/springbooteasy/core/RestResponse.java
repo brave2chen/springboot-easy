@@ -1,7 +1,10 @@
 package com.github.brave2chen.springbooteasy.core;
 
+import com.github.brave2chen.springbooteasy.enums.ErrorCode;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+
+import java.util.Optional;
 
 /**
  * rest 统一返回对象
@@ -31,6 +34,10 @@ public class RestResponse<T> {
 
     public static RestResponse fail(ErrorCode errorCode) {
         return new RestResponse(errorCode.name(), errorCode.getMsg(), null);
+    }
+
+    public static RestResponse fail(ErrorCode errorCode, String msg) {
+        return new RestResponse(errorCode.name(), Optional.ofNullable(msg).orElse(errorCode.getMsg()), null);
     }
 
     public static <T> RestResponse ok(T data) {

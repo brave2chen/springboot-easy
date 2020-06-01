@@ -1,4 +1,4 @@
-package com.github.brave2chen.springbooteasy.core;
+package com.github.brave2chen.springbooteasy.enums;
 
 import lombok.Getter;
 

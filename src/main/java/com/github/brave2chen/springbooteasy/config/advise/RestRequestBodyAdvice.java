@@ -1,5 +1,6 @@
 package com.github.brave2chen.springbooteasy.config.advise;
 
+import com.github.brave2chen.springbooteasy.SpringBootEasyApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -20,7 +21,7 @@ import java.lang.reflect.Type;
 public class RestRequestBodyAdvice extends RequestBodyAdviceAdapter {
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true;
+        return methodParameter.getParameterType().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
     }
 
     @Override

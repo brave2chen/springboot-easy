@@ -37,7 +37,7 @@ public class FlywaySchemaHistoryController {
     }
 
     @ApiOperation(value = "查询 Flyway 版本信息", notes = "通过id查询，id 不小于0")
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/{id:\\d+}")
     public FlywaySchemaHistory get(@PathVariable int id) {
         return flywaySchemaHistoryService.getById(id);
     }

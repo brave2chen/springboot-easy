@@ -2,6 +2,7 @@ package com.github.brave2chen.springbooteasy.config.advise;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.brave2chen.springbooteasy.SpringBootEasyApplication;
 import com.github.brave2chen.springbooteasy.core.RestResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true;
+        return returnType.getParameterType().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
     }
 
     @Override

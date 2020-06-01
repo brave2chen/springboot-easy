@@ -1,4 +1,4 @@
-GET http://localhost/flywaySchemaHistory/page?installedOn=2020-05-28 13:35:02
+GET http://localhost/flywaySchemaHistory/page2?installedOn=2020-05-28 13:35:02
 Accept: application/json
 
 ###
