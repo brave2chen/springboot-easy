@@ -4,13 +4,19 @@ import com.github.brave2chen.springbooteasy.core.RestResponse;
 import com.github.brave2chen.springbooteasy.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 
 /**
  * 全局异常处理
@@ -22,12 +28,51 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class GlobalExceptionAdvice {
     /**
+     * Assert 异常处理
+     */
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse onException(IllegalArgumentException e, HttpServletRequest request) {
+        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
+    }
+
+    /**
+     * ConstraintViolation 异常
+     */
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse onException(ConstraintViolationException e, HttpServletRequest request) {
+        String resultMsg = e.getConstraintViolations().stream().map(ConstraintViolation::getMessageTemplate).collect(Collectors.joining("; "));
+        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+    }
+
+    /**
+     * <code>@Valid</code> 异常处理
+     */
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse onException(MethodArgumentNotValidException e, HttpServletRequest request) {
+        String resultMsg = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.joining("; "));
+        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+    }
+
+    /**
+     * <code>@RestController</code> <code>@RequestParam</code> 参数的 <code>@Valid</code> 异常处理
+     */
+    @ExceptionHandler(value = BindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse onException(BindException e, HttpServletRequest request) {
+        String resultMsg = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(","));
+        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+    }
+
+    /**
      * 405 Method Not Allowed 异常
      */
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public RestResponse exception(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
-        return RestResponse.fail(ErrorCode.A0400, "Http Method Not Support");
+        return logResponse(RestResponse.fail(ErrorCode.A0400, "Http Method Not Support"), e, request);
     }
 
     /**
@@ -36,7 +81,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public RestResponse onException(NoHandlerFoundException e, HttpServletRequest request) {
-        return RestResponse.fail(ErrorCode.C0113);
+        return logResponse(RestResponse.fail(ErrorCode.C0113), e, request);
     }
 
     /**
@@ -45,6 +90,11 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestResponse exception(Exception e, HttpServletRequest request) {
-        return RestResponse.fail(ErrorCode.B0001);
+        return logResponse(RestResponse.fail(ErrorCode.B0001), e, request);
+    }
+
+    private RestResponse logResponse(RestResponse response, Exception e, HttpServletRequest request) {
+        log.error("Rest-URI: " + request.getRequestURI() + ", Exception: " + e.getMessage(), e);
+        return response;
     }
 }

@@ -21,7 +21,8 @@ import java.lang.reflect.Type;
 public class RestRequestBodyAdvice extends RequestBodyAdviceAdapter {
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return methodParameter.getParameterType().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
+        // 本项目包路径下Controller的请求才进行拦截
+        return methodParameter.getExecutable().getDeclaringClass().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.List;
 @MapperScan(value = MybatisPlusConfig.MAPPER_PACKAGE)
 public class MybatisPlusConfig {
     public static final String MAPPER_PACKAGE = "com.github.brave2chen.springbooteasy.mapper";
+    public static final int PAGE_SIZE_LIMIT = 1000;
 
     /**
      * mybatis-plus分页插件<br>
@@ -35,7 +36,7 @@ public class MybatisPlusConfig {
         paginationInterceptor.setOverflow(false);
 
         // 设置最大单页限制数量，默认 500 条，-1 不受限制
-        paginationInterceptor.setLimit(1000);
+        paginationInterceptor.setLimit(PAGE_SIZE_LIMIT);
 
         // 开启 count 的 join 优化，只针对部分 left join
         paginationInterceptor.setCountSqlParser(new JsqlParserCountOptimize(true));

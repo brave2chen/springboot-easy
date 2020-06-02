@@ -28,7 +28,8 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return returnType.getParameterType().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
+        // 本项目包路径下Controller的请求才进行拦截
+        return returnType.getExecutable().getDeclaringClass().getName().startsWith(SpringBootEasyApplication.class.getPackage().getName());
     }
 
     @Override
@@ -40,9 +41,9 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         String path = request.getURI().getPath();
         body = body instanceof RestResponse ? body : RestResponse.ok(body);
         try {
-            log.info("Rest-URI: {}, Rest-RequestBody: {}", path, objectMapper.writeValueAsString(body));
+            log.info("{} \"{}\" Response: {}", request.getMethod().toString().toUpperCase(), path, objectMapper.writeValueAsString(body));
         } catch (JsonProcessingException e) {
-            log.error("Rest-URI: {}, Rest-RequestBody log 序列化异常: {}", path, e.getMessage());
+            log.error("{} \"{}\" Response 序列化异常: {}", request.getMethod().toString().toUpperCase(), path, e.getMessage());
         }
         return body;
     }

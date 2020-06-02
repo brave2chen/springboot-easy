@@ -1,10 +1,10 @@
 package com.github.brave2chen.springbooteasy.rest;
 
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.brave2chen.springbooteasy.model.FlywaySchemaHistory;
+import com.github.brave2chen.springbooteasy.query.PageQuery;
 import com.github.brave2chen.springbooteasy.service.FlywaySchemaHistoryService;
+import com.github.brave2chen.springbooteasy.vo.PageVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,9 @@ public class FlywaySchemaHistoryController {
     private FlywaySchemaHistoryService flywaySchemaHistoryService;
 
     @ApiOperation("分页查询 Flyway 版本列表")
-    @GetMapping("/page")
-    public Page page(Page page, FlywaySchemaHistory model) {
-        return flywaySchemaHistoryService.page(page, Wrappers.query(model));
+    @GetMapping("")
+    public PageVO page(PageQuery<FlywaySchemaHistory> page) {
+        return PageVO.of(flywaySchemaHistoryService.page(page.page()));
     }
 
     @ApiOperation(value = "查询 Flyway 版本信息", notes = "通过id查询，id 不小于0")
