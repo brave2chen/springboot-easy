@@ -3,6 +3,7 @@ package com.github.brave2chen.springbooteasy.config;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Tomcat配置
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
  * @author brave2chen
  * @date 2020-06-01
  */
+@Configuration
 public class TomcatConfig {
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {

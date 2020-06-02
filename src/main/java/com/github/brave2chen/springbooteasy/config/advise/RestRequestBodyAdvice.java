@@ -27,7 +27,6 @@ public class RestRequestBodyAdvice extends RequestBodyAdviceAdapter {
 
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        log.info("Rest-RequestBody: {}", body);
         return body;
     }
 }
