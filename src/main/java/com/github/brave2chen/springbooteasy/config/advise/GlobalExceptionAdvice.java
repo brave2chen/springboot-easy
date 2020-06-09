@@ -4,6 +4,7 @@ import com.github.brave2chen.springbooteasy.core.RestResponse;
 import com.github.brave2chen.springbooteasy.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -82,6 +83,15 @@ public class GlobalExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public RestResponse onException(NoHandlerFoundException e, HttpServletRequest request) {
         return logResponse(RestResponse.fail(ErrorCode.C0113), e, request);
+    }
+
+    /**
+     * 401 Unauthorized 异常
+     */
+    @ExceptionHandler(value = AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public RestResponse onException(AccessDeniedException e, HttpServletRequest request) {
+        return logResponse(RestResponse.fail(ErrorCode.A0301), e, request);
     }
 
     /**

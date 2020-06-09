@@ -2,6 +2,7 @@ package com.github.brave2chen.springbooteasy.config.advise;
 
 import com.github.brave2chen.springbooteasy.SpringBootEasyApplication;
 import com.github.brave2chen.springbooteasy.core.RestResponse;
+import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -33,7 +34,8 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             ServerHttpRequest request, ServerHttpResponse response
     ) {
         String path = request.getURI().getPath();
-        body = body instanceof RestResponse ? body : RestResponse.ok(body);
-        return body;
+
+        RestResponse restResponse = body instanceof RestResponse ? (RestResponse) body : RestResponse.ok(body);
+        return body instanceof String ? JsonUtil.stringify(restResponse) : restResponse;
     }
 }
