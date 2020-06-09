@@ -39,8 +39,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public UserDetailsService userDetailsService() {
         // TODO UserDetailsService 改为数据库方式实现
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(new User("admin", passwordEncoder().encode("123456"), Arrays.asList(new SimpleGrantedAuthority("admin"))));
-        manager.createUser(new User("user", passwordEncoder().encode("123456"), Arrays.asList(new SimpleGrantedAuthority("user"))));
+        manager.createUser(new User("admin", passwordEncoder().encode("123456"), Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+        manager.createUser(new User("user", passwordEncoder().encode("123456"), Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"))));
         return manager;
     }
 

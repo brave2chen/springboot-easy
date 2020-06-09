@@ -29,7 +29,7 @@ public class CodeGeneratorController {
     @ApiOperation(value = "自动生成代码", notes = "根据表名生成想要的entity、mapper、service、controller代码")
     @ApiImplicitParam(value = "表名", name = "table", paramType = "query", required = true, example = "1")
     @GetMapping("/generate")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean generate(@RequestParam String table) {
         return codeGeneratorService.generate(table);
     }
