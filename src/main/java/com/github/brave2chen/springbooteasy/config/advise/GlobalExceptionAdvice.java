@@ -4,9 +4,11 @@ import com.github.brave2chen.springbooteasy.core.RestResponse;
 import com.github.brave2chen.springbooteasy.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,12 +70,30 @@ public class GlobalExceptionAdvice {
     }
 
     /**
+     * HttpMediaTypeNotSupportedException 异常
+     */
+    @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse exception(HttpMediaTypeNotSupportedException e, HttpServletRequest request) {
+        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
+    }
+
+    /**
+     * HttpMessageNotReadableException 异常
+     */
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public RestResponse exception(HttpMessageNotReadableException e, HttpServletRequest request) {
+        return logResponse(RestResponse.fail(ErrorCode.A0400, "Required request body is missing"), e, request);
+    }
+
+    /**
      * 405 Method Not Allowed 异常
      */
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public RestResponse exception(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0400, "Http Method Not Support"), e, request);
+        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
     }
 
     /**

@@ -43,4 +43,8 @@ public class RestResponse<T> {
     public static <T> RestResponse ok(T data) {
         return new RestResponse(data);
     }
+
+    public static <T> RestResponse ok(String msg, T data) {
+        return new RestResponse(null, msg, data);
+    }
 }

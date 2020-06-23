@@ -40,7 +40,6 @@ public class Dictionary implements Serializable {
     @ApiModelProperty(value = "ID")
     @TableId(value = "id", type = IdType.AUTO)
     @Null(groups = {SaveGroup.class}, message = "ID，不需要传")
-    @NotNull(groups = {UpdateGroup.class}, message = "ID，不能为空")
     @Min(value = 0, groups = {SaveGroup.class, UpdateGroup.class}, message = "ID，不能小于0")
     private Integer id;
 

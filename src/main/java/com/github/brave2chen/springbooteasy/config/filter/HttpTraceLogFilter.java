@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,7 +45,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     @Override
@@ -70,12 +72,19 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
             response = new ContentCachingResponseWrapper(response);
         }
         long startTime = System.currentTimeMillis();
-        log.info("{} \"{}\" Parameter: {}, RequestBody: {}", request.getMethod().toUpperCase(), path, JsonUtil.stringify(request.getParameterMap()), (getRequestBody(request)));
         try {
             filterChain.doFilter(request, response);
         } finally {
             long latency = System.currentTimeMillis() - startTime;
-            log.info("{} \"{}\" TimeTaken: {} ms, ResponseBody: {}", request.getMethod().toUpperCase(), path, latency, (getResponseBody(response)));
+            boolean isRequestBody = request.getContentType() != null && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE);
+            log.info("{} \"{}\" TimeTaken: {} ms , {}: {}, ResponseBody: {}",
+                    request.getMethod().toUpperCase(),
+                    path,
+                    latency,
+                    isRequestBody ? "RequestBody" : "Parameter",
+                    isRequestBody ? getRequestBody(request) : JsonUtil.stringify(request.getParameterMap()),
+                    getResponseBody(response)
+            );
             updateResponse(response);
 
             clearTraceId(request);
@@ -97,6 +106,8 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         if (wrapper != null) {
             try {
                 requestBody = IOUtils.toString(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
+                HashMap map = JsonUtil.parse(requestBody, HashMap.class);
+                requestBody = JsonUtil.stringify(map);
             } catch (IOException e) {
                 // NOOP
             }
@@ -128,7 +139,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
     private void setTraceId(HttpServletRequest request) {
         // 从请求头部获取traceId
         String traceId = request.getHeader(SystemConstant.TRACE_ID_REQUEST_HEADER);
-        // 没有traceId则UUID生成一个
+        // TODO 没有traceId则UUID生成一个，最好使用hutool的UUID来生成，其内部使用SecureRandom实现
         traceId = Optional.ofNullable(traceId).orElse(UUID.randomUUID().toString()).replace("-", "");
         // 将traceId放到MDC中
         MDC.put(TRACE_ID, traceId);
@@ -138,6 +149,6 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
      * 清除traceId
      */
     private void clearTraceId(HttpServletRequest request) {
-        MDC.clear();
+        MDC.remove(TRACE_ID);
     }
 }
