@@ -1,8 +1,12 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
+import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.AuthenticatedVoter;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -16,8 +20,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+
+import java.util.Arrays;
 
 /**
  * @author brave2chen
@@ -42,14 +50,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterInvocationSecurityMetadataSource mySecurityMetadataSource() {
-        MyFilterInvocationSecurityMetadataSource securityMetadataSource = new MyFilterInvocationSecurityMetadataSource();
+    public FilterInvocationSecurityMetadataSource mySecurityMetadataSource(FilterInvocationSecurityMetadataSource parent) {
+        MyFilterInvocationSecurityMetadataSource securityMetadataSource = new MyFilterInvocationSecurityMetadataSource(parent);
         return securityMetadataSource;
     }
 
     @Bean
     public AccessDecisionManager myAccessDecisionManager() {
-        return new MyAccessDecisionManager();
+        return new AffirmativeBased(Arrays.asList(
+                new WebExpressionVoter(),
+                new AuthenticatedVoter(),
+                new RoleVoter(),
+                new PrivilegeVoter()
+        ));
     }
 
     @Bean
@@ -63,7 +76,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public MyAuthenticationFailureHandler MyAuthenticationFailureHandler() {
+    public MyAuthenticationFailureHandler myAuthenticationFailureHandler() {
         return new MyAuthenticationFailureHandler();
     }
 
@@ -87,13 +100,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .csrf().disable()
+            .addFilterAfter(new SetMDCUserFilter(), AnonymousAuthenticationFilter.class)
             .exceptionHandling()
                 .authenticationEntryPoint(myAuthenticationEntryPoint())
                 .accessDeniedHandler(myMyAccessDeniedHandler())
                 .and()
             .formLogin()
                 .successHandler(myAuthenticationSuccessHandler())
-                .failureHandler(MyAuthenticationFailureHandler())
+                .failureHandler(myAuthenticationFailureHandler())
                 .permitAll()
                 .and()
             .logout()
@@ -103,15 +117,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .httpBasic()
                 .and()
             .authorizeRequests()
-                .anyRequest().authenticated()
-                .accessDecisionManager(myAccessDecisionManager())
                 .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
                     @Override
                     public <O extends FilterSecurityInterceptor> O postProcess(O fsi) {
-                        fsi.setSecurityMetadataSource(mySecurityMetadataSource());
+                        fsi.setSecurityMetadataSource(mySecurityMetadataSource(fsi.getSecurityMetadataSource()));
+                        fsi.setAccessDecisionManager(myAccessDecisionManager());
                         return fsi;
                     }
                 })
+                // 所有请求登录才能访问
+                .anyRequest().authenticated()
+                .and()
         ;
         // @formatter:on
     }
@@ -119,7 +135,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 放开静态资源访问、swagger接口访问
-        web.ignoring().antMatchers("/**/*.*", "/swagger-resources/**", "/v2/**");
+        web.ignoring().antMatchers("/**/*.*", "/swagger-resources/**", "/v2/**", "/error");
     }
 
 

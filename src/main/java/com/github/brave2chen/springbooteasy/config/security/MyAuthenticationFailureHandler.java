@@ -34,7 +34,7 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         } else if (e instanceof CredentialsExpiredException) {
             msg = "证书过期";
         } else {
-            msg = "登录失败";
+            msg = e.getMessage();
         }
         log.error("Login Error, Exception: " + e.getMessage(), e);
         response.setCharacterEncoding("UTF-8");

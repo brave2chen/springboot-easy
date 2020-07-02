@@ -51,7 +51,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 设置traceId
-        this.setTraceId(request);
+        this.setMDCTraceId(request);
 
         String path = request.getRequestURI();
         if (!isRequestValid(request)
@@ -61,7 +61,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
             try {
                 filterChain.doFilter(request, response);
             } finally {
-                clearTraceId(request);
+                clearMDC();
             }
             return;
         }
@@ -87,7 +87,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
             );
             updateResponse(response);
 
-            clearTraceId(request);
+            clearMDC();
         }
     }
 
@@ -136,7 +136,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
     /**
      * 设置traceId
      */
-    private void setTraceId(HttpServletRequest request) {
+    private void setMDCTraceId(HttpServletRequest request) {
         // 从请求头部获取traceId
         String traceId = request.getHeader(SystemConstant.TRACE_ID_REQUEST_HEADER);
         // TODO 没有traceId则UUID生成一个，最好使用hutool的UUID来生成，其内部使用SecureRandom实现
@@ -146,9 +146,9 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
     }
 
     /**
-     * 清除traceId
+     * 清除traceId, user 等
      */
-    private void clearTraceId(HttpServletRequest request) {
-        MDC.remove(TRACE_ID);
+    private void clearMDC() {
+        MDC.clear();
     }
 }

@@ -11,7 +11,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +46,6 @@ public class DictionaryController {
 
     @ApiOperation(value = "新增 数据字典 信息", notes = "新增 数据字典 信息")
     @PostMapping(value = "")
-    @PreAuthorize("hasRole('ADMIN')")
     public Dictionary save(@RequestBody @Validated(SaveGroup.class) @Valid Dictionary model) {
         dictionaryService.save(model);
         return model;
@@ -55,21 +53,18 @@ public class DictionaryController {
 
     @ApiOperation("更新 数据字典 信息")
     @PutMapping("/{id:\\d+}")
-    @PreAuthorize("hasRole('ADMIN')")
     public boolean updateAll(@PathVariable int id, @RequestBody @Validated(SaveGroup.class) @Valid Dictionary model) {
         return dictionaryService.updateById(model.setId(id));
     }
 
     @ApiOperation("部分更新 数据字典 信息")
     @PatchMapping("/{id:\\d+}")
-    @PreAuthorize("hasRole('ADMIN')")
     public boolean update(@PathVariable int id, @RequestBody @Validated(UpdateGroup.class) @Valid Dictionary model) {
         return dictionaryService.updateById(model.setId(id));
     }
 
     @ApiOperation("删除 数据字典 信息")
     @DeleteMapping("/{id:\\d+}")
-    @PreAuthorize("hasRole('ADMIN')")
     public boolean delete(@PathVariable int id) {
         return dictionaryService.removeById(id);
     }

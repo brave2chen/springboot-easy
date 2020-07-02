@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author chenqy28
+ */
 @Slf4j
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     @Override
