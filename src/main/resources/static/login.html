@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>登录</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<!-- Axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<div id="app">
+  <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+           style="width: 500px;margin: 0 auto;">
+    <el-form-item label="账号" prop="username">
+      <el-input type="username" v-model="ruleForm.username" autocomplete="off"></el-input>
+    </el-form-item>
+    <el-form-item label="密码" prop="pass">
+      <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+      <el-button @click="resetForm('ruleForm')">重置</el-button>
+    </el-form-item>
+  </el-form>
+</div>
+<script>
+  const $vm = new Vue({
+    el: '#app',
+    data() {
+      return {
+        ruleForm: {
+          username: '',
+          password: '',
+        },
+        rules: {
+          username: [
+            {require: true, trigger: 'blur', message: '请输入账号'}
+          ],
+          password: [
+            {require: true, trigger: 'blur', message: '请输入密码'}
+          ],
+        },
+      };
+    },
+
+    methods: {
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            const formData = new FormData()
+            Object.entries(this.ruleForm).forEach(([key, value]) => {
+              value !== undefined && value !== null && formData.append(key, String(value));
+            })
+            axios.post('/login', formData, {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+              }
+            }).then(({data: {code, msg}}) => {
+              if (code) this.$message.error(msg);
+              else window.location.href = "/doc.html"
+            });
+          } else {
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      }
+    }
+  });
+</script>
+</body>
+</html>

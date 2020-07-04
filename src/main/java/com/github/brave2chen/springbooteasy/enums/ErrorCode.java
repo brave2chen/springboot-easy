@@ -12,7 +12,7 @@ import lombok.Getter;
  * 步长间距预留 100
  * </p>
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-05-29
  */
 @Getter

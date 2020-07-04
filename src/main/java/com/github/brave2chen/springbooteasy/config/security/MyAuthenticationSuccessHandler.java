@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @author chenqy28
+ * @author brave2chen
  */
 @Slf4j
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {

@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 /**
  * JSON 工具类
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-05-29
  */
 @Component

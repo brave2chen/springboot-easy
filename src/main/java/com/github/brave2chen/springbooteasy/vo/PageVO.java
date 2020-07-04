@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 分页查询结果包装类
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-06-02
  */
 @Data

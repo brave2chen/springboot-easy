@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
- * @author chenqy28
+ * @author brave2chen
  */
 public class PrivilegeVoter implements AccessDecisionVoter<Object> {
 

@@ -35,7 +35,7 @@ public class DictionaryController {
     @ApiOperation("分页查询 数据字典 列表")
     @GetMapping("")
     public PageVO page(@Valid DictionaryQuery query) {
-        return PageVO.of(dictionaryService.page(query.page(), query.wrapper().lambda().orderByAsc(Dictionary::getType, Dictionary::getIndex)));
+        return PageVO.of(dictionaryService.page(query.page(), query.wrapper().orderByAsc(Dictionary::getType, Dictionary::getIndex)));
     }
 
     @ApiOperation("查询 数据字典 信息")

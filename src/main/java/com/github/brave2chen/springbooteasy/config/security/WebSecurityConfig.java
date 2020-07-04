@@ -1,9 +1,17 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
+import com.github.brave2chen.springbooteasy.model.User;
+import com.github.brave2chen.springbooteasy.service.AuthorityService;
+import com.github.brave2chen.springbooteasy.service.RoleService;
+import com.github.brave2chen.springbooteasy.service.UserService;
+import com.github.brave2chen.springbooteasy.vo.UserVO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -14,18 +22,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 
-import java.util.Arrays;
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * @author brave2chen
@@ -34,6 +43,15 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private RoleService roleService;
+
+    @Resource
+    private AuthorityService authorityService;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,17 +60,61 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        // TODO UserDetailsService 改为数据库方式实现，权限需要试试刷新和缓存
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(new User("admin", passwordEncoder().encode("123456"), AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
-        manager.createUser(new User("user", passwordEncoder().encode("123456"), AuthorityUtils.createAuthorityList("ROLE_USER")));
-        return manager;
+        return username -> {
+            User user = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getUsername, username));
+            if (user == null) {
+                throw new UsernameNotFoundException(username + "用户不存在");
+            }
+            UserVO userVO = userService.getUserVO(user);
+            userVO.setRoles(roleService.getRoleVO(userVO.getRoles()));
+            return SecurityUser.of(userVO);
+        };
     }
 
     @Bean
     public FilterInvocationSecurityMetadataSource mySecurityMetadataSource(FilterInvocationSecurityMetadataSource parent) {
-        MyFilterInvocationSecurityMetadataSource securityMetadataSource = new MyFilterInvocationSecurityMetadataSource(parent);
-        return securityMetadataSource;
+        return new FilterInvocationSecurityMetadataSource() {
+            private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+            private final Map<String, String> urlRoleMap = new HashMap<>(16);
+
+            private void init() {
+                // TODO 需要同步刷新
+                authorityService.list().stream().forEach(authority -> {
+                    urlRoleMap.put(authority.getMethod() + authority.getPath(), authority.getMethod() + authority.getPath());
+                });
+            }
+
+            @Override
+            public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+                if (urlRoleMap.isEmpty()) {
+                    this.init();
+                }
+                Collection<ConfigAttribute> attributes = new ArrayList<>();
+                FilterInvocation fi = (FilterInvocation) object;
+                String url = fi.getHttpRequest().getMethod() + fi.getRequestUrl();
+                for (Map.Entry<String, String> entry : urlRoleMap.entrySet()) {
+                    if (antPathMatcher.match(entry.getKey(), url)) {
+                        attributes.addAll(SecurityConfig.createList(entry.getValue()));
+                        break;
+                    }
+                }
+                // 返回 parent 配置的 attributes
+                if (attributes.isEmpty() && parent.getAttributes(object) != null) {
+                    attributes.addAll(parent.getAttributes(object));
+                }
+                return attributes;
+            }
+
+            @Override
+            public Collection<ConfigAttribute> getAllConfigAttributes() {
+                return null;
+            }
+
+            @Override
+            public boolean supports(Class<?> clazz) {
+                return FilterInvocation.class.isAssignableFrom(clazz);
+            }
+        };
     }
 
     @Bean

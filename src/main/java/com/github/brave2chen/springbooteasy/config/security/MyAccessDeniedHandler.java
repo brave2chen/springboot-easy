@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * 自定义AccessDeniedHandler
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-06-22
  */
 @Slf4j
