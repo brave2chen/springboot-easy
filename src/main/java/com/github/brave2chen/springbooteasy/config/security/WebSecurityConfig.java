@@ -31,9 +31,10 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -74,13 +75,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public FilterInvocationSecurityMetadataSource mySecurityMetadataSource(FilterInvocationSecurityMetadataSource parent) {
         return new FilterInvocationSecurityMetadataSource() {
-            private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-            private final Map<String, String> urlRoleMap = new HashMap<>(16);
+            private final Map<AntPathRequestMatcher, String> urlRoleMap = new HashMap<>(16);
 
             private void init() {
                 // TODO 需要同步刷新
                 authorityService.list().stream().forEach(authority -> {
-                    urlRoleMap.put(authority.getMethod() + authority.getPath(), authority.getMethod() + authority.getPath());
+                    urlRoleMap.put(new AntPathRequestMatcher(authority.getPath(), authority.getMethod()), authority.getAuthority());
                 });
             }
 
@@ -90,10 +90,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     this.init();
                 }
                 Collection<ConfigAttribute> attributes = new ArrayList<>();
-                FilterInvocation fi = (FilterInvocation) object;
-                String url = fi.getHttpRequest().getMethod() + fi.getRequestUrl();
-                for (Map.Entry<String, String> entry : urlRoleMap.entrySet()) {
-                    if (antPathMatcher.match(entry.getKey(), url)) {
+                HttpServletRequest request = ((FilterInvocation) object).getHttpRequest();
+                for (Map.Entry<AntPathRequestMatcher, String> entry : urlRoleMap.entrySet()) {
+                    if (entry.getKey().matches(request)) {
                         attributes.addAll(SecurityConfig.createList(entry.getValue()));
                         break;
                     }
@@ -128,7 +127,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public MyAccessDeniedHandler myMyAccessDeniedHandler() {
+    public MyAccessDeniedHandler myAccessDeniedHandler() {
         return new MyAccessDeniedHandler();
     }
 
@@ -165,7 +164,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .addFilterAfter(new SetMDCUserFilter(), AnonymousAuthenticationFilter.class)
             .exceptionHandling()
                 .authenticationEntryPoint(myAuthenticationEntryPoint())
-                .accessDeniedHandler(myMyAccessDeniedHandler())
+                .accessDeniedHandler(myAccessDeniedHandler())
                 .and()
             .formLogin()
                 .successHandler(myAuthenticationSuccessHandler())

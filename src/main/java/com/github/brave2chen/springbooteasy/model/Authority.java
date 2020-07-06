@@ -1,11 +1,8 @@
 package com.github.brave2chen.springbooteasy.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
-
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +10,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * <p>
@@ -25,10 +26,10 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="Authority对象", description="权限")
+@ApiModel(value = "Authority对象", description = "权限")
 public class Authority implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "主键")
     @TableId(value = "id", type = IdType.AUTO)
@@ -55,5 +56,9 @@ public class Authority implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 
-
+    @ApiModelProperty(value = "权限KEY", hidden = true)
+    @JsonIgnore
+    public String getAuthority() {
+        return Optional.ofNullable(this.getMethod()).orElse("") + this.getPath();
+    }
 }

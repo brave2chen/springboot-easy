@@ -30,7 +30,7 @@ public class SecurityUser implements UserDetails {
         this.user.getRoles().stream().forEach(role -> {
             authorities.add(new SimpleGrantedAuthority(role.getCode()));
             List<GrantedAuthority> collect = ((RoleVO) role).getAuthorities().stream().map(
-                    authority -> new SimpleGrantedAuthority(authority.getMethod() + authority.getPath())
+                    authority -> new SimpleGrantedAuthority(authority.getAuthority())
             ).collect(Collectors.toList());
             authorities.addAll(collect);
         });
