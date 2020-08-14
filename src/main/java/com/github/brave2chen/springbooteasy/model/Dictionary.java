@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.diboot.core.util.JSON;
+import com.diboot.core.util.V;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.brave2chen.springbooteasy.validate.SaveGroup;
 import com.github.brave2chen.springbooteasy.validate.UpdateGroup;
@@ -20,6 +22,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -70,8 +74,8 @@ public class Dictionary implements Serializable {
     @NotNull(groups = {SaveGroup.class}, message = "序号，不能为空")
     @Min(value = 0, groups = {SaveGroup.class, UpdateGroup.class}, message = "序号，不能小于0")
     @ApiModelProperty(value = "序号")
-    @TableField("`index`")
-    private Integer index;
+    @TableField("`sortId`")
+    private Integer sortId;
 
     @ApiModelProperty(value = "删除标记", hidden = true)
     @TableField("is_deleted")
@@ -83,5 +87,38 @@ public class Dictionary implements Serializable {
     @ApiModelProperty(value = "创建时间", hidden = true)
     private Date createTime;
 
+    @ApiModelProperty(value = "JSON扩展字段", hidden = true)
+    @JsonIgnore
+    @TableField
+    private String extdata;
 
+    @TableField(exist = false)
+    private Map<String, Object> extdataMap;
+
+    public String getExtdata() {
+        return V.isEmpty(this.extdataMap) ? null : JSON.toJSONString(this.extdataMap);
+    }
+
+    public Dictionary setExtdata(String extdata) {
+        if (V.notEmpty(extdata)) {
+            this.extdataMap = JSON.toLinkedHashMap(extdata);
+        }
+        return this;
+    }
+
+    public Object getFromExt(String extAttrName) {
+        return this.extdataMap == null ? null : this.extdataMap.get(extAttrName);
+    }
+
+    public Dictionary addIntoExt(String extAttrName, Object extAttrValue) {
+        if (extAttrName == null && extAttrValue == null) {
+            return this;
+        } else {
+            if (this.extdataMap == null) {
+                this.extdataMap = new LinkedHashMap();
+            }
+            this.extdataMap.put(extAttrName, extAttrValue);
+            return this;
+        }
+    }
 }

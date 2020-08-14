@@ -18,15 +18,4 @@ import java.util.List;
  */
 @Service
 public class AuthorityService extends ServiceImpl<AuthorityMapper, Authority> {
-    @Resource
-    private AuthorityMapper authorityMapper;
-
-    /**
-     * 根据用户ID，查询全部记录
-     *
-     * @param roleId
-     */
-    public List<Authority> selectByUserId(Long roleId) {
-        return authorityMapper.selectByUserId(roleId);
-    }
 }

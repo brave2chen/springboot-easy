@@ -9,6 +9,7 @@ import com.github.brave2chen.springbooteasy.service.UserService;
 import com.github.brave2chen.springbooteasy.vo.UserVO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -22,6 +23,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,6 +34,9 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -94,7 +99,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 for (Map.Entry<AntPathRequestMatcher, String> entry : urlRoleMap.entrySet()) {
                     if (entry.getKey().matches(request)) {
                         attributes.addAll(SecurityConfig.createList(entry.getValue()));
-                        break;
                     }
                 }
                 // 返回 parent 配置的 attributes
@@ -151,6 +155,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new MyLogoutSuccessHandler();
     }
 
+    /**
+     * security CorsConfigurer 会自动注入这个Bean
+     */
+    @Bean(name = "corsConfigurationSource")
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addExposedHeader(HttpHeaders.AUTHORIZATION);
+        corsConfiguration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
@@ -161,6 +181,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .csrf().disable()
+            .cors().configurationSource(corsConfigurationSource()).and()
             .addFilterAfter(new SetMDCUserFilter(), AnonymousAuthenticationFilter.class)
             .exceptionHandling()
                 .authenticationEntryPoint(myAuthenticationEntryPoint())
@@ -176,6 +197,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
             .httpBasic()
+                .and()
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
             .authorizeRequests()
                 .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
@@ -198,6 +222,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 放开静态资源访问、swagger接口访问
         web.ignoring().antMatchers("/**/*.*", "/swagger-resources/**", "/v2/**", "/error");
     }
-
-
 }

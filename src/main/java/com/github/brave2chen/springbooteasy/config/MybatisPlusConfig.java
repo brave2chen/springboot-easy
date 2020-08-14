@@ -1,6 +1,13 @@
 package com.github.brave2chen.springbooteasy.config;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.core.injector.AbstractMethod;
+import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
+import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
+import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
+import com.baomidou.mybatisplus.extension.injector.methods.LogicDeleteByIdWithFill;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
 import org.mybatis.spring.annotation.MapperScan;
@@ -49,5 +56,24 @@ public class MybatisPlusConfig {
         paginationInterceptor.setSqlParserList(sqlParserList);
 
         return paginationInterceptor;
+    }
+
+    @Bean
+    public ISqlInjector sqlInjector() {
+        return new DefaultSqlInjector() {
+            @Override
+            public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
+                List<AbstractMethod> methodList = super.getMethodList(mapperClass);
+
+                // 以下 3 个为内置选装件
+                methodList.add(new InsertBatchSomeColumn());
+                methodList.add(new AlwaysUpdateSomeColumnById(i -> i.getFieldFill() != FieldFill.UPDATE || i.getFieldFill() != FieldFill.INSERT_UPDATE));
+                methodList.add(new LogicDeleteByIdWithFill());
+
+                //增加自定义方法
+
+                return methodList;
+            }
+        };
     }
 }

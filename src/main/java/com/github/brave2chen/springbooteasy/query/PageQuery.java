@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.brave2chen.springbooteasy.config.MybatisPlusConfig;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -16,7 +15,6 @@ import javax.validation.constraints.Min;
  * @date 2020-06-02
  */
 @Getter
-@Accessors(chain = true)
 public class PageQuery<T> extends Query<T> {
     /**
      * 每页条数，默认 10
@@ -33,14 +31,10 @@ public class PageQuery<T> extends Query<T> {
     @Min(value = 1, message = "当前页不应小于1")
     private int page = 1;
 
-    public T setPage(int page) {
+    public <E> E page(int page, int size) {
         this.page = page;
-        return (T) this;
-    }
-
-    public T setSize(int size) {
         this.size = size;
-        return (T) this;
+        return (E) this;
     }
 
     public Page<T> page() {

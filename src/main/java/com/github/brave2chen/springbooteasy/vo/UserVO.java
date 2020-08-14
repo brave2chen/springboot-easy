@@ -1,5 +1,6 @@
 package com.github.brave2chen.springbooteasy.vo;
 
+import com.diboot.core.binding.annotation.BindEntityList;
 import com.github.brave2chen.springbooteasy.model.Role;
 import com.github.brave2chen.springbooteasy.model.User;
 import io.swagger.annotations.ApiModel;
@@ -24,11 +25,6 @@ import java.util.List;
 public class UserVO extends User {
 
     @ApiModelProperty(value = "用户角色")
-    List<? extends Role> roles;
-
-    public static UserVO of(User user) {
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        return userVO;
-    }
+    @BindEntityList(entity = Role.class, condition="this.id=user_role.user_id AND user_role.role_id=id")
+    List<RoleVO> roles;
 }

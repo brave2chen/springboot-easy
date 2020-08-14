@@ -6,10 +6,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 代码自动生成 rest服务
@@ -27,7 +24,7 @@ public class CodeGeneratorController {
 
     @ApiOperation(value = "自动生成代码", notes = "根据表名生成想要的entity、mapper、service、controller代码")
     @ApiImplicitParam(value = "表名", name = "table", paramType = "query", required = true, example = "1")
-    @GetMapping("/generate")
+    @PostMapping("/generate")
     public boolean generate(@RequestParam String table) {
         return codeGeneratorService.generate(table);
     }

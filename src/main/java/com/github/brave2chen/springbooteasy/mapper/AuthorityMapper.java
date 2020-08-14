@@ -16,11 +16,5 @@ import java.util.List;
  * @since 2020-07-04
  */
 public interface AuthorityMapper extends BaseMapper<Authority> {
-    /**
-     * 根据角色ID，查询全部记录
-     *
-     * @param roleId
-     */
-    @Select("select authority.* from authority, role_authority where authority.id = role_authority.authority_id and role_authority.role_id = #{roleId}")
-    List<Authority> selectByUserId(Long roleId);
+
 }

@@ -12,6 +12,10 @@ import java.util.Collection;
  * @author brave2chen
  */
 public class PrivilegeVoter implements AccessDecisionVoter<Object> {
+    /**
+     * 系统管理员角色：放行所有请求
+     */
+    private static final String SYSTEM_ADMIN_ROLE = "SystemAdmin";
 
     @Override
     public boolean supports(ConfigAttribute attribute) {
@@ -28,9 +32,12 @@ public class PrivilegeVoter implements AccessDecisionVoter<Object> {
         if (authentication == null) {
             return ACCESS_DENIED;
         }
-        int result = ACCESS_ABSTAIN;
         Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication);
+        if (isSystemAdmin(authorities)) {
+            return ACCESS_GRANTED;
+        }
 
+        int result = ACCESS_ABSTAIN;
         for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
@@ -48,5 +55,9 @@ public class PrivilegeVoter implements AccessDecisionVoter<Object> {
 
     Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
         return authentication.getAuthorities();
+    }
+
+    boolean isSystemAdmin(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream().anyMatch(authority -> SYSTEM_ADMIN_ROLE.equals(authority.getAuthority()));
     }
 }

@@ -1,10 +1,12 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
+import com.diboot.core.binding.Binder;
 import com.github.brave2chen.springbooteasy.vo.RoleVO;
 import com.github.brave2chen.springbooteasy.vo.UserVO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,12 +29,19 @@ public class SecurityUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
+        if(this.user == null || CollectionUtils.isEmpty(this.user.getRoles())){
+            return authorities;
+        }
+        this.user.setRoles(Binder.convertAndBindRelations(this.user.getRoles(), RoleVO.class));
+
         this.user.getRoles().stream().forEach(role -> {
             authorities.add(new SimpleGrantedAuthority(role.getCode()));
-            List<GrantedAuthority> collect = ((RoleVO) role).getAuthorities().stream().map(
-                    authority -> new SimpleGrantedAuthority(authority.getAuthority())
-            ).collect(Collectors.toList());
-            authorities.addAll(collect);
+            if (!CollectionUtils.isEmpty(role.getAuthorities())) {
+                List<GrantedAuthority> list = role.getAuthorities().stream().map(
+                        authority -> new SimpleGrantedAuthority(authority.getAuthority())
+                ).collect(Collectors.toList());
+                authorities.addAll(list);
+            }
         });
         return authorities;
     }
