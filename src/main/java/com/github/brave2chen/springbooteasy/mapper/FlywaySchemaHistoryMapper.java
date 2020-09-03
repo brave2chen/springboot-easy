@@ -1,6 +1,6 @@
 package com.github.brave2chen.springbooteasy.mapper;
 
-import com.github.brave2chen.springbooteasy.model.FlywaySchemaHistory;
+import com.github.brave2chen.springbooteasy.entity.FlywaySchemaHistory;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

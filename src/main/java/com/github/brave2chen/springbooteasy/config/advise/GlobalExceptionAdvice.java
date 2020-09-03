@@ -1,7 +1,8 @@
 package com.github.brave2chen.springbooteasy.config.advise;
 
-import com.github.brave2chen.springbooteasy.core.RestResponse;
-import com.github.brave2chen.springbooteasy.enums.ErrorCode;
+import com.diboot.core.exception.BusinessException;
+import com.diboot.core.vo.JsonResult;
+import com.diboot.core.vo.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,7 +13,6 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
@@ -34,97 +34,113 @@ public class GlobalExceptionAdvice {
      * Assert 异常处理
      */
     @ExceptionHandler(value = IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse onException(IllegalArgumentException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
+    public JsonResult onException(IllegalArgumentException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(e.getMessage()), e, request);
     }
 
     /**
      * ConstraintViolation 异常
      */
     @ExceptionHandler(value = ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse onException(ConstraintViolationException e, HttpServletRequest request) {
+    public JsonResult onException(ConstraintViolationException e, HttpServletRequest request) {
         String resultMsg = e.getConstraintViolations().stream().map(ConstraintViolation::getMessageTemplate).collect(Collectors.joining("; "));
-        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(resultMsg), e, request);
     }
 
     /**
      * <code>@Valid</code> 异常处理
      */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse onException(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public JsonResult onException(MethodArgumentNotValidException e, HttpServletRequest request) {
         String resultMsg = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.joining("; "));
-        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(resultMsg), e, request);
     }
 
     /**
      * <code>@RestController</code> <code>@RequestParam</code> 参数的 <code>@Valid</code> 异常处理
      */
     @ExceptionHandler(value = BindException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse onException(BindException e, HttpServletRequest request) {
+    public JsonResult onException(BindException e, HttpServletRequest request) {
         String resultMsg = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(","));
-        return logResponse(RestResponse.fail(ErrorCode.A0400, resultMsg), e, request);
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(resultMsg), e, request);
     }
 
     /**
      * HttpMediaTypeNotSupportedException 异常
      */
     @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse exception(HttpMediaTypeNotSupportedException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
+    public JsonResult exception(HttpMediaTypeNotSupportedException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(e.getMessage()), e, request);
     }
 
     /**
      * HttpMessageNotReadableException 异常
      */
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public RestResponse exception(HttpMessageNotReadableException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0400, "Required request body is missing"), e, request);
+    public JsonResult exception(HttpMessageNotReadableException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_INVALID_PARAM("Required request body is missing"), e, request);
     }
 
     /**
      * 405 Method Not Allowed 异常
      */
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public RestResponse exception(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0400, e.getMessage()), e, request);
+    public JsonResult exception(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_INVALID_PARAM(e.getMessage()), e, request);
     }
 
     /**
      * 404 Not Found 异常
      */
     @ExceptionHandler(value = NoHandlerFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public RestResponse onException(NoHandlerFoundException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.C0113), e, request);
+    public JsonResult onException(NoHandlerFoundException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_NOT_FOUND(Status.FAIL_NOT_FOUND.label()), e, request);
     }
 
     /**
      * 401 Unauthorized 异常
      */
     @ExceptionHandler(value = AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public RestResponse onException(AccessDeniedException e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.A0301), e, request);
+    public JsonResult onException(AccessDeniedException e, HttpServletRequest request) {
+        return logResponse(JsonResult.FAIL_INVALID_TOKEN(Status.FAIL_INVALID_TOKEN.label()), e, request);
     }
 
     /**
      * 500 Internal Server Error 异常
      */
     @ExceptionHandler(value = Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public RestResponse exception(Exception e, HttpServletRequest request) {
-        return logResponse(RestResponse.fail(ErrorCode.B0001), e, request);
+    public JsonResult exception(Exception e, HttpServletRequest request) {
+        int code;
+        if (e instanceof BusinessException) {
+            code = ((BusinessException) e).getStatus().code();
+        } else if (e.getCause() instanceof BusinessException) {
+            code = ((BusinessException) e.getCause()).getStatus().code();
+        } else {
+            code = getStatus(request).value();
+        }
+        return logResponse(new JsonResult(code, e.getMessage(), null), e, request);
     }
 
-    private RestResponse logResponse(RestResponse response, Exception e, HttpServletRequest request) {
-        log.error("Rest-URI: " + request.getRequestURI() + ", Exception: " + e.getMessage(), e);
+    private JsonResult logResponse(JsonResult response, Exception e, HttpServletRequest request) {
+        log.warn("Rest-URI: " + request.getRequestURI() + ", Exception: " + e.getMessage(), e);
         return response;
+    }
+
+    /**
+     * 获取状态码
+     *
+     * @param request
+     * @return
+     */
+    protected HttpStatus getStatus(HttpServletRequest request) {
+        Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
+        if (statusCode == null) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        try {
+            return HttpStatus.valueOf(statusCode);
+        } catch (Exception ex) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
     }
 }

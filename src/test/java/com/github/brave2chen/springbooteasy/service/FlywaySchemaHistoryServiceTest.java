@@ -2,7 +2,7 @@ package com.github.brave2chen.springbooteasy.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.brave2chen.springbooteasy.SpringBootEasyApplication;
-import com.github.brave2chen.springbooteasy.model.FlywaySchemaHistory;
+import com.github.brave2chen.springbooteasy.entity.FlywaySchemaHistory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

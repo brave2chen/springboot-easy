@@ -1,16 +1,18 @@
-import $axios from '@/plugins/axios'
+import axios from "axios";
 
 const state = {
-  user: null,
-  token: '',
+  user: JSON.parse(localStorage.getItem("user") || "{}"),
+  token: localStorage.getItem("token") || '',
 }
 
 const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
+    localStorage.setItem("token", token)
   },
   SET_USER: (state, user) => {
     state.user = user
+    localStorage.setItem("user", JSON.stringify(user))
   },
 }
 
@@ -18,7 +20,7 @@ const mutations = {
 const actions = {
   // user logout
   async login({commit}, userInfo) {
-    const response = await $axios.post('/login', userInfo, {
+    const response = await axios.post('/login', userInfo, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }

@@ -95,16 +95,11 @@
             <version>2.6</version>
         </dependency>
 
-        <!-- diboot -->
-<!--        <dependency>-->
-<!--            <groupId>com.diboot</groupId>-->
-<!--            <artifactId>diboot-core</artifactId>-->
-<!--            <version>2.1.1</version>-->
-<!--        </dependency>-->
+        <!-- diboot TODO 待升级 -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.72</version>
+            <groupId>com.diboot</groupId>
+            <artifactId>diboot-core</artifactId>
+            <version>2.1.1</version>
         </dependency>
 
         <dependency>

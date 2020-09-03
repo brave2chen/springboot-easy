@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.diboot.core.binding.Binder;
 import com.github.brave2chen.springbooteasy.mapper.RoleMapper;
-import com.github.brave2chen.springbooteasy.model.Role;
+import com.github.brave2chen.springbooteasy.entity.Role;
 import com.github.brave2chen.springbooteasy.query.RoleQuery;
 import com.github.brave2chen.springbooteasy.vo.RoleVO;
 import org.springframework.stereotype.Service;

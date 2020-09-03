@@ -1,11 +1,7 @@
 package com.github.brave2chen.springbooteasy.mapper;
 
-import com.github.brave2chen.springbooteasy.model.Authority;
+import com.github.brave2chen.springbooteasy.entity.Authority;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.brave2chen.springbooteasy.model.Role;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * <p>

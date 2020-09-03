@@ -2,7 +2,7 @@ package com.github.brave2chen.springbooteasy.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
-import com.github.brave2chen.springbooteasy.model.User;
+import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import com.github.brave2chen.springbooteasy.service.UserService;

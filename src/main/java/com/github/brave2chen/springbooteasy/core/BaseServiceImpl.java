@@ -1,6 +1,6 @@
 package com.github.brave2chen.springbooteasy.core;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.diboot.core.config.BaseConfig;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -9,9 +9,12 @@ import java.util.List;
 /**
  * @author brave2chen
  */
-public class BaseServiceImpl<M extends CommonMapper<T>, T> extends ServiceImpl<M, T> {
+public class BaseServiceImpl<M extends BaseMapper<T>, T> extends com.diboot.core.service.impl.BaseServiceImpl<M, T> {
 
-    private static final int BATCH_SIZE = 1000;
+    @Override
+    public boolean createOrUpdateEntity(T entity) {
+        return super.createOrUpdateEntity(entity);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public boolean fastSaveBatch(List<T> list, int batchSize) {
@@ -36,7 +39,8 @@ public class BaseServiceImpl<M extends CommonMapper<T>, T> extends ServiceImpl<M
 
     @Transactional(rollbackFor = Exception.class)
     public boolean fastSaveBatch(List<T> list) {
-        return fastSaveBatch(list, BATCH_SIZE);
+        int batchSize = BaseConfig.getBatchSize();
+        return fastSaveBatch(list, batchSize);
     }
 
     public boolean updateAllColById(T t) {

@@ -4,16 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.diboot.core.binding.Binder;
 import com.github.brave2chen.springbooteasy.mapper.UserMapper;
-import com.github.brave2chen.springbooteasy.model.Role;
-import com.github.brave2chen.springbooteasy.model.User;
+import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.query.UserQuery;
-import com.github.brave2chen.springbooteasy.vo.RoleVO;
 import com.github.brave2chen.springbooteasy.vo.UserVO;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>

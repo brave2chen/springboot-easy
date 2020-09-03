@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.config;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
@@ -8,11 +9,19 @@ import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
 import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
 import com.baomidou.mybatisplus.extension.injector.methods.LogicDeleteByIdWithFill;
+import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
+import com.diboot.core.util.BeanUtils;
+import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
+import com.github.brave2chen.springbooteasy.core.BaseEntity;
+import com.github.brave2chen.springbooteasy.core.DataEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.reflection.MetaObject;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.ArrayList;
@@ -24,6 +33,7 @@ import java.util.List;
  * @author brave2chen
  * @date 2020-05-29
  */
+@Slf4j
 @Configuration
 @EnableTransactionManagement
 @MapperScan(value = MybatisPlusConfig.MAPPER_PACKAGE)
@@ -59,6 +69,35 @@ public class MybatisPlusConfig {
     }
 
     @Bean
+    public MetaObjectHandler metaObjectHandler() {
+        return new MetaObjectHandler() {
+            @Override
+            public void insertFill(MetaObject metaObject) {
+                log.debug("start insert fill ....");
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal instanceof SecurityUser) {
+                    // TODO 匿名用户
+                    this.strictInsertFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getCreateBy), Long.class, ((SecurityUser) principal).getId());
+                    this.strictInsertFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getUpdateBy), Long.class, ((SecurityUser) principal).getId());
+                }
+
+                log.debug("end insert fill ....");
+            }
+
+            @Override
+            public void updateFill(MetaObject metaObject) {
+                log.debug("start update fill ....");
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal instanceof SecurityUser) {
+                    // TODO 匿名用户
+                    this.strictUpdateFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getUpdateBy), Long.class, ((SecurityUser) principal).getId());
+                }
+                log.debug("end update fill ....");
+            }
+        };
+    }
+
+    @Bean
     public ISqlInjector sqlInjector() {
         return new DefaultSqlInjector() {
             @Override
@@ -76,4 +115,11 @@ public class MybatisPlusConfig {
             }
         };
     }
+
+    @Bean
+    public OptimisticLockerInterceptor optimisticLockerInterceptor() {
+        return new OptimisticLockerInterceptor();
+    }
+
+
 }

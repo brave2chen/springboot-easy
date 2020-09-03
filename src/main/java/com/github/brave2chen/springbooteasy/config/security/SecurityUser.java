@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * SecurityUser
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-07-04
  */
 public class SecurityUser implements UserDetails {
@@ -29,7 +29,7 @@ public class SecurityUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        if(this.user == null || CollectionUtils.isEmpty(this.user.getRoles())){
+        if (this.user == null || CollectionUtils.isEmpty(this.user.getRoles())) {
             return authorities;
         }
         this.user.setRoles(Binder.convertAndBindRelations(this.user.getRoles(), RoleVO.class));
@@ -74,6 +74,10 @@ public class SecurityUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.user.getEnabled();
+    }
+
+    public Long getId() {
+        return this.user.getId();
     }
 
     public static SecurityUser of(UserVO user) {

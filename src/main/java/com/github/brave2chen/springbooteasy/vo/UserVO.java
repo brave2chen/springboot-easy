@@ -1,21 +1,20 @@
 package com.github.brave2chen.springbooteasy.vo;
 
 import com.diboot.core.binding.annotation.BindEntityList;
-import com.github.brave2chen.springbooteasy.model.Role;
-import com.github.brave2chen.springbooteasy.model.User;
+import com.github.brave2chen.springbooteasy.entity.Role;
+import com.github.brave2chen.springbooteasy.entity.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 
 /**
  * 用户 VO
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-07-04
  */
 @Data

@@ -1,14 +1,12 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
-import com.github.brave2chen.springbooteasy.core.RestResponse;
-import com.github.brave2chen.springbooteasy.enums.ErrorCode;
+import com.diboot.core.vo.JsonResult;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +24,6 @@ public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().print(JsonUtil.stringify((RestResponse.fail(ErrorCode.A0301, "用户未登录"))));
+        response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_INVALID_TOKEN("用户未登录"))));
     }
 }

@@ -1,6 +1,6 @@
 package com.github.brave2chen.springbooteasy.query;
 
-import com.github.brave2chen.springbooteasy.model.User;
+import com.github.brave2chen.springbooteasy.entity.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 /**
  * User查询对象
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-07-04
  */
 @Data

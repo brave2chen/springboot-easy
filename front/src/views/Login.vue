@@ -56,7 +56,9 @@
         <v-snackbar v-model="snackbar.value" top :timeout="2000" :color="snackbar.color">
           {{ snackbar.text }}
           <template v-slot:action="{ attrs }">
-            <v-btn dark text v-bind="attrs" @click="snackbar.value = false"><v-icon>mdi-close</v-icon></v-btn>
+            <v-btn dark text v-bind="attrs" @click="snackbar.value = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
           </template>
         </v-snackbar>
       </v-container>
@@ -67,7 +69,7 @@
 <script>
   import {mapActions} from 'vuex'
   import {required} from 'vee-validate/dist/rules'
-  import {extend, ValidationObserver, ValidationProvider, setInteractionMode} from 'vee-validate'
+  import {extend, setInteractionMode, ValidationObserver, ValidationProvider} from 'vee-validate'
 
   setInteractionMode('eager')
 
@@ -109,9 +111,8 @@
       ...mapActions('user', {toLogin: 'login'}),
       async login() {
         const validate = await this.$refs.observer.validate();
-        if(!validate) return;
+        if (!validate) return;
         const {msg, data} = await this.toLogin(this.model);
-        this.error = msg;
         this.snackbar = {text: msg, value: true, color: data ? 'success' : 'error'};
 
         await this.$router.push('/dictionary')

@@ -26,7 +26,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
-    public static final String BASE_PACKAGE = "com.github.brave2chen.springbooteasy.rest";
+    public static final String BASE_PACKAGE = "com.github.brave2chen.springbooteasy.controller";
 
     @Bean
     public Docket createRestApi() {

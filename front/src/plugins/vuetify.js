@@ -15,6 +15,6 @@ export default new Vuetify({
   },
   lang: {
     locales: {zhHans},
-    current: "zh-Hans"
+    current: "zhHans",
   }
 });

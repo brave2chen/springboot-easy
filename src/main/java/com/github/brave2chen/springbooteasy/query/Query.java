@@ -9,7 +9,7 @@ import java.lang.reflect.ParameterizedType;
 /**
  * Query
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-07-04
  */
 abstract class Query<T> {

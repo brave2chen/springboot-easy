@@ -1,7 +1,6 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
-import com.github.brave2chen.springbooteasy.core.RestResponse;
-import com.github.brave2chen.springbooteasy.enums.ErrorCode;
+import com.diboot.core.vo.JsonResult;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -39,6 +38,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         log.error("Login Error, Exception: " + e.getMessage(), e);
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().print(JsonUtil.stringify((RestResponse.fail(ErrorCode.A0200, msg))));
+        response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_INVALID_TOKEN(msg))));
     }
 }
