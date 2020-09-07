@@ -21,9 +21,14 @@ import java.util.stream.Collectors;
  */
 public class SecurityUser implements UserDetails {
     private UserVO user;
+    private String token;
 
     private SecurityUser(UserVO user) {
         this.user = user;
+    }
+
+    public UserVO getUser() {
+        return user;
     }
 
     @Override
@@ -84,4 +89,11 @@ public class SecurityUser implements UserDetails {
         return new SecurityUser(user);
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
 }

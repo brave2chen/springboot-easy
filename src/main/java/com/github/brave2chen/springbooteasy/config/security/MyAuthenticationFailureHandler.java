@@ -38,6 +38,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         log.error("Login Error, Exception: " + e.getMessage(), e);
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_INVALID_TOKEN(msg))));
+        response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_OPERATION(msg))));
     }
 }

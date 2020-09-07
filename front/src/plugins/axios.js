@@ -6,7 +6,7 @@ import store from "@/store"
 
 // Full config:  https://github.com/axios/axios#request-config
 axios.defaults.baseURL = process.env.VUE_APP_BASE_API || "",
-  axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use(
   config => {
