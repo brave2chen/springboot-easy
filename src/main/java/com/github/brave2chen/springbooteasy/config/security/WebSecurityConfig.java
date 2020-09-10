@@ -6,7 +6,7 @@ import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import com.github.brave2chen.springbooteasy.service.UserService;
-import com.github.brave2chen.springbooteasy.vo.UserVO;
+import com.github.brave2chen.springbooteasy.dto.UserWithAuth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -71,9 +71,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             if (user == null) {
                 throw new UsernameNotFoundException(username + "用户不存在");
             }
-            UserVO userVO = userService.getUserVO(user);
-            userVO.setRoles(roleService.getRoleVO(userVO.getRoles()));
-            return SecurityUser.of(userVO);
+            UserWithAuth userWithAuth = userService.getUserVO(user);
+            userWithAuth.setRoles(roleService.getRoleVO(userWithAuth.getRoles()));
+            return SecurityUser.of(userWithAuth);
         };
     }
 

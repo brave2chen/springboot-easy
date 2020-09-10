@@ -1,8 +1,8 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
 import com.diboot.core.binding.Binder;
-import com.github.brave2chen.springbooteasy.vo.RoleVO;
-import com.github.brave2chen.springbooteasy.vo.UserVO;
+import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
+import com.github.brave2chen.springbooteasy.dto.UserWithAuth;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
  * @date 2020-07-04
  */
 public class SecurityUser implements UserDetails {
-    private UserVO user;
+    private UserWithAuth user;
     private String token;
 
-    private SecurityUser(UserVO user) {
+    private SecurityUser(UserWithAuth user) {
         this.user = user;
     }
 
-    public UserVO getUser() {
+    public UserWithAuth getUser() {
         return user;
     }
 
@@ -37,7 +37,7 @@ public class SecurityUser implements UserDetails {
         if (this.user == null || CollectionUtils.isEmpty(this.user.getRoles())) {
             return authorities;
         }
-        this.user.setRoles(Binder.convertAndBindRelations(this.user.getRoles(), RoleVO.class));
+        this.user.setRoles(Binder.convertAndBindRelations(this.user.getRoles(), RoleWithAuth.class));
 
         this.user.getRoles().stream().forEach(role -> {
             authorities.add(new SimpleGrantedAuthority(role.getCode()));
@@ -85,7 +85,7 @@ public class SecurityUser implements UserDetails {
         return this.user.getId();
     }
 
-    public static SecurityUser of(UserVO user) {
+    public static SecurityUser of(UserWithAuth user) {
         return new SecurityUser(user);
     }
 

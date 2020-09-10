@@ -43,7 +43,6 @@ public class User extends LogicalDataEntity {
     private Integer gender;
 
     @ApiModelProperty(value = "用户密码")
-    @JsonIgnore
     private String password;
 
     @ApiModelProperty(value = "密码更新时间")

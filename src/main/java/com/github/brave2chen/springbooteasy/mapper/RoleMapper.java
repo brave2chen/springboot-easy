@@ -1,6 +1,6 @@
 package com.github.brave2chen.springbooteasy.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.brave2chen.springbooteasy.core.BaseMapper;
 import com.github.brave2chen.springbooteasy.entity.Role;
 
 /**

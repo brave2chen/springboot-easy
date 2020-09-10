@@ -5,11 +5,10 @@ import com.diboot.core.vo.JsonResult;
 import com.github.brave2chen.springbooteasy.entity.Role;
 import com.github.brave2chen.springbooteasy.service.UserService;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
-import com.github.brave2chen.springbooteasy.vo.UserVO;
+import com.github.brave2chen.springbooteasy.dto.UserWithAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -36,13 +35,15 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         log.info("Login: " + authentication.getName());
         response.setCharacterEncoding(Cons.CHARSET_UTF8);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String username = request.getParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY);
+        String password = request.getParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY);
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        user.setToken(Base64Utils.encodeToString((user.getUsername() + ":" + user.getPassword()).getBytes()));
-        UserVO userVO = user.getUser();
+        user.setToken(Base64Utils.encodeToString((username + ":" + password).getBytes()));
+        UserWithAuth userWithAuth = user.getUser();
         response.getWriter().print(JsonUtil.stringify((JsonResult.OK(new HashMap(2) {{
             put("token", user.getToken());
-            put("user", user.getUsername());
-            put("roles", userVO.getRoles().stream().map(Role::getCode).collect(Collectors.toList()));
+            put("user", username);
+            put("roles", userWithAuth.getRoles().stream().map(Role::getCode).collect(Collectors.toList()));
         }}))));
     }
 }

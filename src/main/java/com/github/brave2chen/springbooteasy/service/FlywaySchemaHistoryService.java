@@ -1,5 +1,6 @@
 package com.github.brave2chen.springbooteasy.service;
 
+import com.github.brave2chen.springbooteasy.core.BaseServiceImpl;
 import com.github.brave2chen.springbooteasy.entity.FlywaySchemaHistory;
 import com.github.brave2chen.springbooteasy.mapper.FlywaySchemaHistoryMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
  * @since 2020-05-29
  */
 @Service
-public class FlywaySchemaHistoryService extends ServiceImpl<FlywaySchemaHistoryMapper, FlywaySchemaHistory> {
+public class FlywaySchemaHistoryService extends BaseServiceImpl<FlywaySchemaHistoryMapper, FlywaySchemaHistory> {
 
 
 }

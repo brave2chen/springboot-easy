@@ -7,7 +7,7 @@ create table user
     nickname             varchar(20)                                   not null comment '用户昵称',
     gender               tinyint(2) unsigned default 0                 not null comment '用户性别：0保密,1男，2女',
     password             varchar(255)                                  not null comment '用户密码',
-    password_update_time datetime                                      not null comment '密码更新时间',
+    password_update_time datetime            default current_timestamp not null comment '密码更新时间',
     is_enabled           tinyint(1) unsigned default 1                 not null comment '是否启用',
     is_locked            tinyint(1) unsigned default 0                 not null comment '是否锁定',
     is_expired           tinyint(1) unsigned default 0                 not null comment '是否过期',

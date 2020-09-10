@@ -1,4 +1,4 @@
-package com.github.brave2chen.springbooteasy.vo;
+package com.github.brave2chen.springbooteasy.dto;
 
 import com.diboot.core.binding.annotation.BindEntityList;
 import com.github.brave2chen.springbooteasy.entity.Role;
@@ -21,9 +21,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @ApiModel(value = "用户VO对象", description = "用户VO对象")
-public class UserVO extends User {
+public class UserWithAuth extends User {
 
     @ApiModelProperty(value = "用户角色")
     @BindEntityList(entity = Role.class, condition="this.id=user_role.user_id AND user_role.role_id=id")
-    List<RoleVO> roles;
+    private List<RoleWithAuth> roles;
 }

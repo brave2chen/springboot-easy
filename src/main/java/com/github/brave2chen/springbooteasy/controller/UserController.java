@@ -1,19 +1,26 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.diboot.core.controller.BaseController;
+import com.diboot.core.vo.JsonResult;
+import com.diboot.core.vo.Pagination;
+import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
+import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.query.UserQuery;
 import com.github.brave2chen.springbooteasy.service.UserService;
-import com.github.brave2chen.springbooteasy.vo.PageVO;
+import com.github.brave2chen.springbooteasy.vo.UserInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -27,14 +34,52 @@ import javax.validation.Valid;
 @RestController
 @Validated
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-public class UserController {
+public class UserController extends BaseController {
     @Autowired
     private UserService userService;
 
     @ApiOperation("分页查询 用户 列表")
+    @GetMapping("/info")
+    public UserInfo info() throws Exception {
+        SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (UserInfo) UserInfo.from(user.getUser()).setPassword("******");
+    }
+
+    @ApiOperation("分页查询 用户 列表")
     @GetMapping("")
-    public PageVO page(@Valid UserQuery query) {
-        return PageVO.of(userService.page(query));
+    public JsonResult page(@Valid UserQuery user, Pagination pagination) throws Exception {
+        LambdaQueryWrapper<User> queryWrapper = super.buildLambdaQueryWrapper(user);
+        if (StringUtils.isNotBlank(user.getIdentity())) {
+            queryWrapper.and(w -> w
+                    .or().like(User::getUsername, user.getIdentity())
+                    .or().like(User::getEmail, user.getIdentity())
+                    .or().like(User::getMobile, user.getIdentity())
+                    .or().like(User::getNickname, user.getIdentity())
+            );
+        }
+        List<UserInfo> users = userService.getViewObjectList(queryWrapper, pagination, UserInfo.class);
+        users.forEach(u -> u.setPassword("*****"));
+        return JsonResult.OK(users).bindPagination(pagination);
+    }
+
+
+    @ApiOperation("创建用户")
+    @PostMapping("")
+    public boolean save(@Valid @RequestBody User user) throws Exception {
+        return userService.save(user);
+    }
+
+    @ApiOperation("更新用户")
+    @PutMapping("/{id:\\d+}")
+    public boolean update(@PathVariable Long id, @Valid @RequestBody User user) throws Exception {
+        user.setId(id);
+        return userService.updateById(user);
+    }
+
+    @ApiOperation("删除用户")
+    @DeleteMapping("/{id:\\d+}")
+    public boolean update(@PathVariable Long id) throws Exception {
+        return userService.removeById(id);
     }
 }
 

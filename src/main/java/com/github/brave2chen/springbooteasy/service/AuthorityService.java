@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.brave2chen.springbooteasy.core.BaseServiceImpl;
 import com.github.brave2chen.springbooteasy.mapper.AuthorityMapper;
 import com.github.brave2chen.springbooteasy.entity.Authority;
 import org.springframework.stereotype.Service;
@@ -14,5 +15,5 @@ import org.springframework.stereotype.Service;
  * @since 2020-07-04
  */
 @Service
-public class AuthorityService extends ServiceImpl<AuthorityMapper, Authority> {
+public class AuthorityService extends BaseServiceImpl<AuthorityMapper, Authority> {
 }

@@ -21,6 +21,11 @@ INSERT INTO authority (id, name, method, path, is_deleted, create_by, create_tim
 
 -- 角色-资源权限关系
 INSERT INTO role_authority (role_id, authority_id) VALUES (2, 5);
+INSERT INTO role_authority (role_id, authority_id) VALUES (1, 1);
+INSERT INTO role_authority (role_id, authority_id) VALUES (1, 2);
+INSERT INTO role_authority (role_id, authority_id) VALUES (1, 3);
+INSERT INTO role_authority (role_id, authority_id) VALUES (1, 4);
+INSERT INTO role_authority (role_id, authority_id) VALUES (1, 5);
 
 -- 字典：性别
 INSERT INTO dictionary (id, parent_id, type, item_name, item_value, description, extdata, sort_id, is_editable, is_deletable, is_deleted, create_time) VALUES (1, 0, 'sex', '性别', '0', '', null, 1, 1, 0, 0, '2020-08-14 10:33:22');

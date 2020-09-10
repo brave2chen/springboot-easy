@@ -11,6 +11,7 @@ import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.KeyValue;
 import com.diboot.core.vo.Pagination;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,34 +29,25 @@ import java.util.List;
  */
 @RestController
 @Slf4j
+@RequestMapping(value = "/dictionary", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DictionaryController extends BaseController {
     @Resource
     private DictionaryService dictionaryService;
 
-    /***
-     * 查询ViewObject的分页数据
+    /**
+     * 查询据字典的分页数据
      * <p>
-     * url请求参数示例: /list?name=abc&pageSize=20&pageIndex=1&orderBy=name
+     * url请求参数示例: ?name=abc&pageSize=20&pageIndex=1&orderBy=name
      * </p>
+     *
      * @return
      * @throws Exception
      */
-    @GetMapping("/dictionary/list")
+    @GetMapping("")
     public JsonResult getViewObjectListMapping(Dictionary entity, Pagination pagination) throws Exception {
         QueryWrapper<Dictionary> queryWrapper = super.buildQueryWrapper(entity);
         List<DictionaryVO> voList = dictionaryService.getViewObjectList(queryWrapper, pagination, DictionaryVO.class);
         return JsonResult.OK(voList).bindPagination(pagination);
-    }
-
-    /***
-     * 根据资源id查询ViewObject
-     * @param id ID
-     * @return
-     * @throws Exception
-     */
-    @GetMapping("/dictionary/{id}")
-    public DictionaryVO getViewObjectMapping(@PathVariable("id") Long id) throws Exception {
-        return dictionaryService.getViewObject(id, DictionaryVO.class);
     }
 
     /**
@@ -65,44 +57,55 @@ public class DictionaryController extends BaseController {
      * @return JsonResult
      * @throws Exception
      */
-    @PostMapping("/dictionary")
+    @PostMapping("")
     public Boolean createEntityMapping(@RequestBody @Valid DictionaryVO entityVO) throws Exception {
         boolean success = dictionaryService.createDictAndChildren(entityVO);
         return success;
     }
 
-    /***
+    /**
+     * 根据资源id查询ViewObject
+     * @param id ID
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/{id:\\d+}")
+    public DictionaryVO getViewObjectMapping(@PathVariable("id") Long id) throws Exception {
+        return dictionaryService.getViewObject(id, DictionaryVO.class);
+    }
+
+    /**
      * 根据ID更新资源对象
      * @param entityVO
      * @return JsonResult
      * @throws Exception
      */
-    @PutMapping("/dictionary/{id}")
+    @PutMapping("/{id:\\d+}")
     public Boolean updateEntityMapping(@PathVariable("id") Long id, @Valid @RequestBody DictionaryVO entityVO) throws Exception {
         entityVO.setId(id);
         boolean success = dictionaryService.updateDictAndChildren(entityVO);
         return success;
     }
 
-    /***
+    /**
      * 根据id删除资源对象
      * @param id
      * @return
      * @throws Exception
      */
-    @DeleteMapping("/dictionary/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public Boolean deleteEntityMapping(@PathVariable("id") Long id) throws Exception {
         boolean success = dictionaryService.deleteDictAndChildren(id);
         return success;
     }
 
-    /***
+    /**
      * 获取数据字典数据列表
      * @param type
      * @return
      * @throws Exception
      */
-    @GetMapping("/dictionary/items/{type}")
+    @GetMapping("/items/{type}")
     public List<KeyValue> getItems(@PathVariable("type") @NotBlank(message = "type参数未指定") String type) throws Exception {
         List<KeyValue> itemsList = dictionaryService.getKeyValueList(type);
         return itemsList;
@@ -115,7 +118,7 @@ public class DictionaryController extends BaseController {
      * @param type
      * @return
      */
-    @GetMapping("/dictionary/checkTypeDuplicate")
+    @GetMapping("/checkTypeDuplicate")
     public boolean checkTypeDuplicate(@RequestParam(required = false) Long id, @NotBlank(message = "type参数未指定") String type) {
         LambdaQueryWrapper<Dictionary> wrapper = new LambdaQueryWrapper();
         wrapper.select(Dictionary::getId).eq(Dictionary::getType, type).eq(Dictionary::getParentId, 0);
