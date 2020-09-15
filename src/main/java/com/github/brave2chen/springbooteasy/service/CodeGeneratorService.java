@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.github.brave2chen.springbooteasy.SpringBootEasyApplication;
+import com.github.brave2chen.springbooteasy.core.BaseController;
+import com.github.brave2chen.springbooteasy.core.BaseEntity;
+import com.github.brave2chen.springbooteasy.core.BaseMapper;
+import com.github.brave2chen.springbooteasy.core.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -80,6 +84,12 @@ public class CodeGeneratorService {
         strategy.setEntityLombokModel(true);
         strategy.setEntityBooleanColumnRemoveIsPrefix(true);
         strategy.setRestControllerStyle(true);
+
+        strategy.setSuperEntityClass(BaseEntity.class);
+        strategy.setSuperEntityColumns("id", "create_by", "create_time");
+        strategy.setSuperMapperClass(BaseMapper.class.getName());
+        strategy.setSuperServiceImplClass(BaseServiceImpl.class);
+        strategy.setSuperControllerClass(BaseController.class);
         return strategy;
     }
 
@@ -101,6 +111,7 @@ public class CodeGeneratorService {
         globalConfig.setIdType(IdType.AUTO);
         globalConfig.setDateType(DateType.ONLY_DATE);
         globalConfig.setServiceImplName("%sService");
+
         return globalConfig;
     }
 }
