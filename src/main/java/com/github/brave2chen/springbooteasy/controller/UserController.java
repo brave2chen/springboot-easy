@@ -8,6 +8,7 @@ import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
 import com.github.brave2chen.springbooteasy.entity.User;
+import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.query.UserQuery;
 import com.github.brave2chen.springbooteasy.service.UserService;
 import com.github.brave2chen.springbooteasy.vo.UserInfo;
@@ -17,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,5 +85,13 @@ public class UserController extends BaseController {
     public boolean update(@PathVariable Long id) throws Exception {
         return userService.removeById(id);
     }
+
+    @ApiOperation("设置角色")
+    @PutMapping("/{id:\\d+}/roles")
+    public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> roles) throws Exception {
+        Assert.notNull(roles, "角色不能为空");
+        return userService.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);
+    }
+
 }
 

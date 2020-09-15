@@ -31,6 +31,10 @@ public class UserInfo extends User {
     @BindFieldList(entity = Role.class, field = "code", condition="this.id=user_role.user_id AND user_role.role_id=id")
     private List<String> roles;
 
+    @ApiModelProperty(value = "用户角色ID")
+    @BindFieldList(entity = Role.class, field = "id", condition="this.id=user_role.user_id AND user_role.role_id=id")
+    private List<Long> rolesId;
+
     @ApiModelProperty(value = "用户性别")
     @BindDict(type = "sex", field = "gender")
     private String genderName;
