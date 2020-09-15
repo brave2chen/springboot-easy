@@ -39,7 +39,7 @@ public class UserController extends BaseController {
     @Autowired
     private UserService userService;
 
-    @ApiOperation("分页查询 用户 列表")
+    @ApiOperation("获取当前用户信息")
     @GetMapping("/info")
     public UserInfo info() throws Exception {
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
