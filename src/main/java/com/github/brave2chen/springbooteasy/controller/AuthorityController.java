@@ -1,6 +1,8 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.brave2chen.springbooteasy.query.AuthorityQuery;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
@@ -35,8 +37,8 @@ public class AuthorityController extends BaseController {
 
     @ApiOperation("分页查询 权限 列表")
     @GetMapping("")
-    public JsonResult page(@Valid Authority entity, Pagination pagination) throws Exception {
-        LambdaQueryWrapper<Authority> queryWrapper = super.buildLambdaQueryWrapper(entity);
+    public JsonResult page(@Valid AuthorityQuery entity, Pagination pagination) throws Exception {
+        QueryWrapper<Authority> queryWrapper = super.buildQueryWrapper(entity);
 
         List<Authority> list = service.getEntityList(queryWrapper, pagination);
 
@@ -44,7 +46,7 @@ public class AuthorityController extends BaseController {
     }
 
     @ApiOperation("获取 权限 详细信息")
-    @DeleteMapping("/{id:\\d+}")
+    @GetMapping("/{id:\\d+}")
     public Authority get(@PathVariable Long id) throws Exception {
         return service.getById(id);
     }

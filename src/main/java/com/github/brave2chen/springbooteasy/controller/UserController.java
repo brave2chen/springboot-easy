@@ -1,8 +1,9 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.diboot.core.controller.BaseController;
+import com.diboot.core.util.BeanUtils;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
@@ -48,13 +49,13 @@ public class UserController extends BaseController {
     @ApiOperation("分页查询 用户 列表")
     @GetMapping("")
     public JsonResult page(@Valid UserQuery user, Pagination pagination) throws Exception {
-        LambdaQueryWrapper<User> queryWrapper = super.buildLambdaQueryWrapper(user);
+        QueryWrapper<User> queryWrapper = super.buildQueryWrapper(user);
         if (StringUtils.isNotBlank(user.getIdentity())) {
             queryWrapper.and(w -> w
-                    .or().like(User::getUsername, user.getIdentity())
-                    .or().like(User::getEmail, user.getIdentity())
-                    .or().like(User::getMobile, user.getIdentity())
-                    .or().like(User::getNickname, user.getIdentity())
+                    .or().like(BeanUtils.convertToFieldName(User::getUsername), user.getIdentity())
+                    .or().like(BeanUtils.convertToFieldName(User::getEmail), user.getIdentity())
+                    .or().like(BeanUtils.convertToFieldName(User::getMobile), user.getIdentity())
+                    .or().like(BeanUtils.convertToFieldName(User::getNickname), user.getIdentity())
             );
         }
         List<UserInfo> users = userService.getViewObjectList(queryWrapper, pagination, UserInfo.class);

@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
@@ -36,7 +37,7 @@ public class RoleController extends BaseController {
     @ApiOperation("分页查询 角色 列表")
     @GetMapping("")
     public JsonResult page(@Valid Role entity, Pagination pagination) throws Exception {
-        LambdaQueryWrapper<Role> queryWrapper = super.buildLambdaQueryWrapper(entity);
+        QueryWrapper<Role> queryWrapper = super.buildQueryWrapper(entity);
 
         List<Role> list = service.getEntityList(queryWrapper, pagination);
 
@@ -44,7 +45,7 @@ public class RoleController extends BaseController {
     }
 
     @ApiOperation("获取 角色 详细信息")
-    @DeleteMapping("/{id:\\d+}")
+    @GetMapping("/{id:\\d+}")
     public Role get(@PathVariable Long id) throws Exception {
         return service.getById(id);
     }

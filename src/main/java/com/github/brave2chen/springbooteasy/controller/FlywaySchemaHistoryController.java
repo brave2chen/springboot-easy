@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author brave2chen
  * @since 2020-09-15
  */
-@Api(tags = "Flyway版本 CURD服务")
+@Api(tags = " CURD服务")
 @RestController
 @Validated
 @RequestMapping(value = "/flywaySchemaHistory", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,7 +37,7 @@ public class FlywaySchemaHistoryController extends BaseController {
     @ApiOperation("分页查询 Flyway版本 列表")
     @GetMapping("")
     public JsonResult page(@Valid FlywaySchemaHistory entity, Pagination pagination) throws Exception {
-        LambdaQueryWrapper<FlywaySchemaHistory> queryWrapper = super.buildLambdaQueryWrapper(entity);
+        QueryWrapper<FlywaySchemaHistory> queryWrapper = super.buildQueryWrapper(entity);
 
         List<FlywaySchemaHistory> list = service.getEntityList(queryWrapper, pagination);
 
@@ -44,7 +45,7 @@ public class FlywaySchemaHistoryController extends BaseController {
     }
 
     @ApiOperation("获取 Flyway版本 详细信息")
-    @DeleteMapping("/{id:\\d+}")
+    @GetMapping("/{id:\\d+}")
     public FlywaySchemaHistory get(@PathVariable Long id) throws Exception {
         return service.getById(id);
     }
