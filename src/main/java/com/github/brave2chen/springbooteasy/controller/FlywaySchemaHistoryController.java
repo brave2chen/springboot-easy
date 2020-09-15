@@ -1,6 +1,8 @@
 package com.github.brave2chen.springbooteasy.controller;
 
-
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.springframework.web.bind.annotation.RestController;
+import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.entity.FlywaySchemaHistory;
@@ -9,37 +11,41 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
- * 前端控制器
+ * Flyway版本 前端控制器
  * </p>
  *
  * @author brave2chen
- * @since 2020-05-29
+ * @since 2020-09-15
  */
-@Api(tags = "Flyway 版本查询服务")
+@Api(tags = "Flyway版本 CURD服务")
 @RestController
+@Validated
 @RequestMapping(value = "/flywaySchemaHistory", produces = MediaType.APPLICATION_JSON_VALUE)
-public class FlywaySchemaHistoryController {
-
+public class FlywaySchemaHistoryController extends BaseController {
     @Autowired
-    private FlywaySchemaHistoryService flywaySchemaHistoryService;
+    private FlywaySchemaHistoryService service;
 
-    @ApiOperation("分页查询 Flyway 版本列表")
+    @ApiOperation("分页查询 Flyway版本 列表")
     @GetMapping("")
-    public JsonResult page(Pagination pagination) {
-        return JsonResult.OK(flywaySchemaHistoryService.page(pagination.toPage()).getRecords()).bindPagination(pagination);
+    public JsonResult page(@Valid FlywaySchemaHistory entity, Pagination pagination) throws Exception {
+        LambdaQueryWrapper<FlywaySchemaHistory> queryWrapper = super.buildLambdaQueryWrapper(entity);
+
+        List<FlywaySchemaHistory> list = service.getEntityList(queryWrapper, pagination);
+
+        return JsonResult.OK(list).bindPagination(pagination);
     }
 
-    @ApiOperation(value = "查询 Flyway 版本信息", notes = "通过id查询，id 不小于0")
-    @GetMapping(value = "/{id:\\d+}")
-    public FlywaySchemaHistory get(@PathVariable int id) {
-        return flywaySchemaHistoryService.getById(id);
+    @ApiOperation("获取 Flyway版本 详细信息")
+    @DeleteMapping("/{id:\\d+}")
+    public FlywaySchemaHistory get(@PathVariable Long id) throws Exception {
+        return service.getById(id);
     }
 }
-

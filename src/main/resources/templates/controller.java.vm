@@ -51,7 +51,7 @@ public class ${table.controllerName} {
     @Autowired
     private ${table.serviceImplName} service;
 
-    @ApiOperation("分页查询 $!{table.comment}  列表")
+    @ApiOperation("分页查询 $!{table.comment} 列表")
     @GetMapping("")
     public JsonResult page(@Valid ${entity} entity, Pagination pagination) throws Exception {
         LambdaQueryWrapper<${entity}> queryWrapper = super.buildLambdaQueryWrapper(entity);
@@ -61,20 +61,26 @@ public class ${table.controllerName} {
         return JsonResult.OK(list).bindPagination(pagination);
     }
 
-    @ApiOperation("创建$!{table.comment} ")
+    @ApiOperation("获取 $!{table.comment} 详细信息")
+    @DeleteMapping("/{id:\\d+}")
+    public ${entity} get(@PathVariable Long id) throws Exception {
+        return service.getById(id);
+    }
+
+    @ApiOperation("创建$!{table.comment}")
     @PostMapping("")
     public boolean save(@Valid @RequestBody ${entity} entity) throws Exception {
         return service.save(entity);
     }
 
-    @ApiOperation("更新$!{table.comment} ")
+    @ApiOperation("更新$!{table.comment}")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody ${entity} entity) throws Exception {
         entity.setId(id);
         return service.updateById(entity);
     }
 
-    @ApiOperation("删除$!{table.comment} ")
+    @ApiOperation("删除$!{table.comment}")
     @DeleteMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id) throws Exception {
         return service.removeById(id);
