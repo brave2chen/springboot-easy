@@ -68,12 +68,12 @@ public class CodeGeneratorService {
         PackageConfig pc = new PackageConfig();
         pc.setParent(SpringBootEasyApplication.class.getPackage().getName());
         pc.setModuleName(null);
-        pc.setEntity("model");
+        pc.setEntity("entity");
         pc.setMapper("mapper");
         pc.setXml("mapper");
         pc.setService("service");
         pc.setServiceImpl("service");
-        pc.setController("rest");
+        pc.setController("controller");
         return pc;
     }
 
@@ -82,6 +82,7 @@ public class CodeGeneratorService {
         strategy.setNaming(NamingStrategy.underline_to_camel);
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
         strategy.setEntityLombokModel(true);
+        strategy.setChainModel(true);
         strategy.setEntityBooleanColumnRemoveIsPrefix(true);
         strategy.setRestControllerStyle(true);
 
