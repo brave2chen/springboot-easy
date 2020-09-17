@@ -1,17 +1,18 @@
 package com.github.brave2chen.springbooteasy.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.springframework.web.bind.annotation.RestController;
-import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
+import com.github.brave2chen.springbooteasy.core.BaseController;
+import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.Role;
+import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +47,8 @@ public class RoleController extends BaseController {
 
     @ApiOperation("获取 角色 详细信息")
     @GetMapping("/{id:\\d+}")
-    public Role get(@PathVariable Long id) throws Exception {
-        return service.getById(id);
+    public RoleWithAuth get(@PathVariable Long id) throws Exception {
+        return service.getViewObject(id, RoleWithAuth.class);
     }
 
     @ApiOperation("创建角色")
@@ -68,4 +69,12 @@ public class RoleController extends BaseController {
     public boolean delete(@PathVariable Long id) throws Exception {
         return service.removeById(id);
     }
+
+    @ApiOperation("设置权限")
+    @PutMapping("/{id:\\d+}/authority")
+    public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> roles) throws Exception {
+        Assert.notNull(roles, "权限不能为空");
+        return service.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);
+    }
+
 }
