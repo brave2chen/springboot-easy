@@ -7,18 +7,18 @@ import com.diboot.core.util.BeanUtils;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
-import com.github.brave2chen.springbooteasy.entity.Role;
+import com.github.brave2chen.springbooteasy.dto.UserWithRole;
 import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.query.UserQuery;
 import com.github.brave2chen.springbooteasy.service.UserService;
-import com.github.brave2chen.springbooteasy.dto.UserWithRole;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +39,12 @@ import java.util.List;
 @Validated
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController extends BaseController {
+    public static final String PASSWORD_MASK = "*****";
     @Autowired
     private UserService service;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @ApiOperation("获取当前用户信息")
     @GetMapping("/info")
@@ -62,7 +66,7 @@ public class UserController extends BaseController {
             );
         }
         List<User> users = service.getEntityList(queryWrapper, pagination);
-        users.forEach(u -> u.setPassword("*****"));
+        users.forEach(u -> u.setPassword(PASSWORD_MASK));
         return JsonResult.OK(users).bindPagination(pagination);
     }
 
@@ -75,6 +79,7 @@ public class UserController extends BaseController {
     @ApiOperation("创建用户")
     @PostMapping("")
     public boolean save(@Valid @RequestBody User user) throws Exception {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return service.save(user);
     }
 
@@ -82,6 +87,11 @@ public class UserController extends BaseController {
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody User user) throws Exception {
         user.setId(id);
+        if (user.getPassword() != null && PASSWORD_MASK.equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            user.setPassword(null);
+        }
         return service.updateById(user);
     }
 

@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.diboot.core.util.ContextHelper;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
 import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.User;
@@ -35,6 +36,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -59,6 +61,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private AuthorityService authorityService;
 
+    @Resource
+    private MySecurityMetadataSource securityMetadataSource;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -78,48 +83,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         };
     }
 
-    @Bean
-    public FilterInvocationSecurityMetadataSource mySecurityMetadataSource(FilterInvocationSecurityMetadataSource parent) {
-        return new FilterInvocationSecurityMetadataSource() {
-            private final Map<AntPathRequestMatcher, String> urlRoleMap = new HashMap<>(16);
+    /** 权限缓存 */
+    private static final Map<AntPathRequestMatcher, String> urlRoleMap = new HashMap<>(16);
 
-            private void init() {
-                // TODO 需要同步刷新
-                authorityService.list().stream().forEach(authority -> {
-                    urlRoleMap.put(new AntPathRequestMatcher(authority.getPath(), authority.getMethod()), authority.getAuthority());
-                });
-            }
-
-            @Override
-            public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-                if (urlRoleMap.isEmpty()) {
-                    this.init();
-                }
-                Collection<ConfigAttribute> attributes = new ArrayList<>();
-                HttpServletRequest request = ((FilterInvocation) object).getHttpRequest();
-                for (Map.Entry<AntPathRequestMatcher, String> entry : urlRoleMap.entrySet()) {
-                    if (entry.getKey().matches(request)) {
-                        attributes.addAll(SecurityConfig.createList(entry.getValue()));
-                    }
-                }
-                // 返回 parent 配置的 attributes
-                if (attributes.isEmpty() && parent.getAttributes(object) != null) {
-                    attributes.addAll(parent.getAttributes(object));
-                }
-                return attributes;
-            }
-
-            @Override
-            public Collection<ConfigAttribute> getAllConfigAttributes() {
-                return null;
-            }
-
-            @Override
-            public boolean supports(Class<?> clazz) {
-                return FilterInvocation.class.isAssignableFrom(clazz);
-            }
-        };
-    }
 
     @Bean
     public AccessDecisionManager myAccessDecisionManager() {
@@ -206,7 +172,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
                     @Override
                     public <O extends FilterSecurityInterceptor> O postProcess(O fsi) {
-                        fsi.setSecurityMetadataSource(mySecurityMetadataSource(fsi.getSecurityMetadataSource()));
+                        securityMetadataSource.setParent(fsi.getSecurityMetadataSource());
+                        fsi.setSecurityMetadataSource(securityMetadataSource);
                         fsi.setAccessDecisionManager(myAccessDecisionManager());
                         return fsi;
                     }

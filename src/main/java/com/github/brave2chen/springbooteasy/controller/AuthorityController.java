@@ -1,13 +1,12 @@
 package com.github.brave2chen.springbooteasy.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.brave2chen.springbooteasy.query.AuthorityQuery;
-import org.springframework.web.bind.annotation.RestController;
-import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
+import com.github.brave2chen.springbooteasy.config.security.MySecurityMetadataSource;
+import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.github.brave2chen.springbooteasy.entity.Authority;
+import com.github.brave2chen.springbooteasy.query.AuthorityQuery;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +33,9 @@ import java.util.List;
 public class AuthorityController extends BaseController {
     @Autowired
     private AuthorityService service;
+
+    @Autowired
+    private MySecurityMetadataSource securityMetadataSource;
 
     @ApiOperation("分页查询 权限 列表")
     @GetMapping("")
@@ -68,5 +70,12 @@ public class AuthorityController extends BaseController {
     @DeleteMapping("/{id:\\d+}")
     public boolean delete(@PathVariable Long id) throws Exception {
         return service.removeById(id);
+    }
+
+    @ApiOperation("刷新权限")
+    @PostMapping("/refresh")
+    public boolean refresh() throws Exception {
+        securityMetadataSource.refresh();
+        return true;
     }
 }
