@@ -92,7 +92,7 @@ public class UserController extends BaseController {
     }
 
     @ApiOperation("设置角色")
-    @PutMapping("/{id:\\d+}/roles")
+    @PutMapping("/{id:\\d+}/role")
     public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> roles) throws Exception {
         Assert.notNull(roles, "角色不能为空");
         return service.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);

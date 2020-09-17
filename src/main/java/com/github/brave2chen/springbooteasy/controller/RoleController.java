@@ -6,6 +6,7 @@ import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.Role;
+import com.github.brave2chen.springbooteasy.entity.RoleAuthority;
 import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import io.swagger.annotations.Api;
@@ -72,9 +73,9 @@ public class RoleController extends BaseController {
 
     @ApiOperation("设置权限")
     @PutMapping("/{id:\\d+}/authority")
-    public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> roles) throws Exception {
-        Assert.notNull(roles, "权限不能为空");
-        return service.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);
+    public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> authorities) throws Exception {
+        Assert.notNull(authorities, "权限不能为空");
+        return service.createOrUpdateN2NRelations(RoleAuthority::getRoleId, id, RoleAuthority::getAuthorityId, authorities);
     }
 
 }

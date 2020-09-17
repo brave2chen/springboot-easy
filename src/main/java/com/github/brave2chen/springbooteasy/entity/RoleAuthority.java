@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * 角色权限关系
@@ -18,10 +20,9 @@ import lombok.experimental.Accessors;
  * @since 2020-09-15
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @ApiModel(value="RoleAuthority对象", description="角色权限关系")
-public class RoleAuthority extends BaseEntity {
+public class RoleAuthority implements Serializable {
 
     private static final long serialVersionUID=1L;
 
