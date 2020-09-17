@@ -7,11 +7,12 @@ import com.diboot.core.util.BeanUtils;
 import com.diboot.core.vo.JsonResult;
 import com.diboot.core.vo.Pagination;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
+import com.github.brave2chen.springbooteasy.entity.Role;
 import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.query.UserQuery;
 import com.github.brave2chen.springbooteasy.service.UserService;
-import com.github.brave2chen.springbooteasy.vo.UserInfo;
+import com.github.brave2chen.springbooteasy.dto.UserWithRole;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,13 +40,13 @@ import java.util.List;
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController extends BaseController {
     @Autowired
-    private UserService userService;
+    private UserService service;
 
     @ApiOperation("获取当前用户信息")
     @GetMapping("/info")
-    public UserInfo info() throws Exception {
+    public UserWithRole info() throws Exception {
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return (UserInfo) UserInfo.from(user.getUser()).setPassword("******");
+        return (UserWithRole) UserWithRole.from(user.getUser()).setPassword("******");
     }
 
     @ApiOperation("分页查询 用户 列表")
@@ -61,36 +61,41 @@ public class UserController extends BaseController {
                     .or().like(BeanUtils.convertToFieldName(User::getNickname), user.getIdentity())
             );
         }
-        List<UserInfo> users = userService.getViewObjectList(queryWrapper, pagination, UserInfo.class);
+        List<User> users = service.getEntityList(queryWrapper, pagination);
         users.forEach(u -> u.setPassword("*****"));
         return JsonResult.OK(users).bindPagination(pagination);
     }
 
+    @ApiOperation("获取 用户 详细信息")
+    @GetMapping("/{id:\\d+}")
+    public UserWithRole get(@PathVariable Long id) throws Exception {
+        return service.getViewObject(id, UserWithRole.class);
+    }
 
     @ApiOperation("创建用户")
     @PostMapping("")
     public boolean save(@Valid @RequestBody User user) throws Exception {
-        return userService.save(user);
+        return service.save(user);
     }
 
     @ApiOperation("更新用户")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody User user) throws Exception {
         user.setId(id);
-        return userService.updateById(user);
+        return service.updateById(user);
     }
 
     @ApiOperation("删除用户")
     @DeleteMapping("/{id:\\d+}")
-    public boolean update(@PathVariable Long id) throws Exception {
-        return userService.removeById(id);
+    public boolean delete(@PathVariable Long id) throws Exception {
+        return service.removeById(id);
     }
 
     @ApiOperation("设置角色")
     @PutMapping("/{id:\\d+}/roles")
     public boolean setRoles(@PathVariable Long id, @Valid @RequestBody List<Long> roles) throws Exception {
         Assert.notNull(roles, "角色不能为空");
-        return userService.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);
+        return service.createOrUpdateN2NRelations(UserRole::getUserId, id, UserRole::getRoleId, roles);
     }
 
 }

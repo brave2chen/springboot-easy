@@ -39,11 +39,8 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         String password = request.getParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY);
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         user.setToken(Base64Utils.encodeToString((username + ":" + password).getBytes()));
-        UserWithAuth userWithAuth = user.getUser();
         response.getWriter().print(JsonUtil.stringify((JsonResult.OK(new HashMap(2) {{
             put("token", user.getToken());
-            put("user", username);
-            put("roles", userWithAuth.getRoles().stream().map(Role::getCode).collect(Collectors.toList()));
         }}))));
     }
 }

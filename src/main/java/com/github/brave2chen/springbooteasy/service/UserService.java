@@ -19,12 +19,5 @@ import java.util.List;
  */
 @Service
 public class UserService extends BaseServiceImpl<UserMapper, User> {
-    public List<UserWithAuth> getUserVO(List<? extends User> users) {
-        List<UserWithAuth> list = Binder.convertAndBindRelations(users, UserWithAuth.class);
-        return list;
-    }
 
-    public UserWithAuth getUserVO(User user) {
-        return Binder.convertAndBindRelations(user, UserWithAuth.class);
-    }
 }

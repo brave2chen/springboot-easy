@@ -19,12 +19,4 @@ import java.util.List;
  */
 @Service
 public class RoleService extends BaseServiceImpl<RoleMapper, Role> {
-
-    public List<RoleWithAuth> getRoleVO(List<? extends Role> roles) {
-        return Binder.convertAndBindRelations(roles, RoleWithAuth.class);
-    }
-
-    public RoleWithAuth getRoleVO(Role role) {
-        return Binder.convertAndBindRelations(role, RoleWithAuth.class);
-    }
 }

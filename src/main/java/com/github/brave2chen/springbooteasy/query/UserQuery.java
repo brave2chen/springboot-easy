@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.util.List;
-
 /**
  * User查询对象
  *
@@ -26,7 +24,9 @@ public class UserQuery extends User {
     @BindQuery(comparison = Comparison.IN, field = "gender")
     private Integer[] sex;
 
-    /** 需要自行实现 */
+    /**
+     * 需要自行实现
+     */
     @ApiModelProperty(value = "身份模糊匹配")
     @BindQuery(ignore = true)
     private String identity;

@@ -65,7 +65,7 @@ public class RoleController extends BaseController {
 
     @ApiOperation("删除角色")
     @DeleteMapping("/{id:\\d+}")
-    public boolean update(@PathVariable Long id) throws Exception {
+    public boolean delete(@PathVariable Long id) throws Exception {
         return service.removeById(id);
     }
 }

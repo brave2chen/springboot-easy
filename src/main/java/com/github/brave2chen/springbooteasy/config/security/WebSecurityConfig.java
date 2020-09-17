@@ -2,6 +2,7 @@ package com.github.brave2chen.springbooteasy.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
+import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
 import com.github.brave2chen.springbooteasy.service.RoleService;
@@ -71,8 +72,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             if (user == null) {
                 throw new UsernameNotFoundException(username + "用户不存在");
             }
-            UserWithAuth userWithAuth = userService.getUserVO(user);
-            userWithAuth.setRoles(roleService.getRoleVO(userWithAuth.getRoles()));
+            UserWithAuth userWithAuth = userService.convertToViewObject(user, UserWithAuth.class);
+            userWithAuth.setRoles(roleService.convertToViewObjectList(userWithAuth.getRoles(), RoleWithAuth.class));
             return SecurityUser.of(userWithAuth);
         };
     }

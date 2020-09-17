@@ -1,5 +1,6 @@
 package com.github.brave2chen.springbooteasy.core;
 
+import com.diboot.core.binding.Binder;
 import com.diboot.core.config.BaseConfig;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -45,6 +46,27 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends com.diboot.core
 
     public boolean updateAllColById(T t) {
         return retBool(baseMapper.alwaysUpdateSomeColumnById(t));
+    }
+
+    /**
+     * 获取View Object对象
+     *
+     * @return entity
+     */
+    public <VO extends T, T> VO convertToViewObject(T entity, Class<VO> voClass) {
+        // 自动转换为VO并绑定关联对象
+        return Binder.convertAndBindRelations(entity, voClass);
+    }
+
+    /**
+     * 获取View Object对象
+     *
+     * @return entity
+     */
+    public <VO extends T, T> List<VO> convertToViewObjectList(List<T> entityList, Class<VO> voClass) {
+        // 自动转换为VO并绑定关联对象
+        List<VO> voList = Binder.convertAndBindRelations(entityList, voClass);
+        return voList;
     }
 
 }

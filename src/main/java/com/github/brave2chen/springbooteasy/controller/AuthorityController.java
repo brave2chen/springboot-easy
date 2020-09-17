@@ -66,7 +66,7 @@ public class AuthorityController extends BaseController {
 
     @ApiOperation("删除权限")
     @DeleteMapping("/{id:\\d+}")
-    public boolean update(@PathVariable Long id) throws Exception {
+    public boolean delete(@PathVariable Long id) throws Exception {
         return service.removeById(id);
     }
 }
