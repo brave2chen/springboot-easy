@@ -3,6 +3,7 @@ package com.github.brave2chen.springbooteasy.config.security;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.diboot.core.util.ContextHelper;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
+import com.github.brave2chen.springbooteasy.config.security.jwt.JwtTokenAuthenticationFilter;
 import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
@@ -35,6 +36,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
@@ -64,6 +66,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private MySecurityMetadataSource securityMetadataSource;
 
+    @Resource
+    private MyAccessDeniedHandler accessDeniedHandler;
+
+    @Resource
+    private MyAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Resource
+    private MyAuthenticationFailureHandler authenticationFailureHandler;
+
+    @Resource
+    private MyAuthenticationSuccessHandler authenticationSuccessHandler;
+
+    @Resource
+    private MyLogoutSuccessHandler logoutSuccessHandler;
+
+    @Resource
+    private JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -83,10 +103,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         };
     }
 
-    /** 权限缓存 */
-    private static final Map<AntPathRequestMatcher, String> urlRoleMap = new HashMap<>(16);
-
-
     @Bean
     public AccessDecisionManager myAccessDecisionManager() {
         return new AffirmativeBased(Arrays.asList(
@@ -95,31 +111,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 new RoleVoter(),
                 new PrivilegeVoter()
         ));
-    }
-
-    @Bean
-    public MyAccessDeniedHandler myAccessDeniedHandler() {
-        return new MyAccessDeniedHandler();
-    }
-
-    @Bean
-    public MyAuthenticationEntryPoint myAuthenticationEntryPoint() {
-        return new MyAuthenticationEntryPoint();
-    }
-
-    @Bean
-    public MyAuthenticationFailureHandler myAuthenticationFailureHandler() {
-        return new MyAuthenticationFailureHandler();
-    }
-
-    @Bean
-    public MyAuthenticationSuccessHandler myAuthenticationSuccessHandler() {
-        return new MyAuthenticationSuccessHandler();
-    }
-
-    @Bean
-    public MyLogoutSuccessHandler myLogoutSuccessHandler() {
-        return new MyLogoutSuccessHandler();
     }
 
     /**
@@ -149,18 +140,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .cors().configurationSource(corsConfigurationSource()).and()
+            .addFilterBefore(jwtTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(new SetMDCUserFilter(), AnonymousAuthenticationFilter.class)
             .exceptionHandling()
-                .authenticationEntryPoint(myAuthenticationEntryPoint())
-                .accessDeniedHandler(myAccessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
                 .and()
             .formLogin()
-                .successHandler(myAuthenticationSuccessHandler())
-                .failureHandler(myAuthenticationFailureHandler())
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler)
                 .permitAll()
                 .and()
             .logout()
-                .logoutSuccessHandler(myLogoutSuccessHandler())
+                .logoutSuccessHandler(logoutSuccessHandler)
                 .permitAll()
                 .and()
             .httpBasic()

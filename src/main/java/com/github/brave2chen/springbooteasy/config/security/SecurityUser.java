@@ -88,12 +88,4 @@ public class SecurityUser implements UserDetails {
     public static SecurityUser of(UserWithAuth user) {
         return new SecurityUser(user);
     }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
 }
