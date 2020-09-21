@@ -41,5 +41,7 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_OPERATION(msg))));
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }

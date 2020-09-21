@@ -27,5 +27,7 @@ public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_INVALID_TOKEN("用户未登录"))));
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }

@@ -1,11 +1,15 @@
-GET http://localhost/flywaySchemaHistory/page2?installedOn=2020-05-28 13:35:02
+GET http://localhost/flywaySchemaHistory
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2MDA2ODM2MzAsInN1YiI6ImFkbWluIiwiaWF0IjoxNjAwNjgxODMwODA0fQ.qVOy_tDeAhlEkFDnsNnVqpuo5I-qWPX4GnmZbGSNx_oVd1bbPV2qlBb5lBDQwX8iwabO-7C_hnQHNUL2xmZDcQ
+
+
+###
+GET http://localhost/sms/login?mobile=13512345678
 Accept: application/json
 
 ###
-
-
-###
-GET http://localhost/code/generate?table=flyway_schema_history
+POST http://localhost/sms/login?mobile=13512345678&code=9527
+Content-Type: application/x-www-form-urlencoded
 Accept: application/json
 
 ###

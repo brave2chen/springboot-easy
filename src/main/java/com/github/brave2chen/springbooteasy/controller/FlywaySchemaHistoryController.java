@@ -38,7 +38,7 @@ public class FlywaySchemaHistoryController extends BaseController {
     @GetMapping("")
     public JsonResult page(@Valid FlywaySchemaHistory entity, Pagination pagination) throws Exception {
         QueryWrapper<FlywaySchemaHistory> queryWrapper = super.buildQueryWrapper(entity);
-
+        pagination.setOrderBy(null);
         List<FlywaySchemaHistory> list = service.getEntityList(queryWrapper, pagination);
 
         return JsonResult.OK(list).bindPagination(pagination);

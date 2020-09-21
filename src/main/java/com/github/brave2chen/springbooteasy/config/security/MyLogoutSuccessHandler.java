@@ -25,5 +25,7 @@ public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().print(JsonUtil.stringify(JsonResult.OK(true)));
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }

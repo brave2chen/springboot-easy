@@ -1,21 +1,20 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.diboot.core.util.ContextHelper;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
 import com.github.brave2chen.springbooteasy.config.security.jwt.JwtTokenAuthenticationFilter;
+import com.github.brave2chen.springbooteasy.config.security.sms.SmsAuthenticationFilter;
+import com.github.brave2chen.springbooteasy.config.security.sms.SmsAuthenticationSecurityConfig;
 import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
+import com.github.brave2chen.springbooteasy.dto.UserWithAuth;
 import com.github.brave2chen.springbooteasy.entity.User;
 import com.github.brave2chen.springbooteasy.service.AuthorityService;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import com.github.brave2chen.springbooteasy.service.UserService;
-import com.github.brave2chen.springbooteasy.dto.UserWithAuth;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -31,21 +30,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * @author brave2chen
@@ -129,6 +123,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
+    @Resource
+    private SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
@@ -157,6 +154,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .httpBasic()
                 .and()
+            .apply(smsAuthenticationSecurityConfig)
+                .and()
+                .authorizeRequests()
+                .antMatchers(SmsAuthenticationFilter.SMS_LOGIN_URL).permitAll()
+                .and()
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -173,6 +175,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 所有请求登录才能访问
                 .anyRequest().authenticated()
                 .and()
+
         ;
         // @formatter:on
     }

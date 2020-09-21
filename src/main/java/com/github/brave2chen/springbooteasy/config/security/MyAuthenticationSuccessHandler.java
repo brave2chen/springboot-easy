@@ -48,5 +48,7 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         response.getWriter().print(JsonUtil.stringify((JsonResult.OK(new HashMap(2) {{
             put("token", token);
         }}))));
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }

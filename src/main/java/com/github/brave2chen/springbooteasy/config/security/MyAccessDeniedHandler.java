@@ -31,5 +31,7 @@ public class MyAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.getWriter().print(JsonUtil.stringify((JsonResult.FAIL_NO_PERMISSION(e.getMessage()))));
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }
