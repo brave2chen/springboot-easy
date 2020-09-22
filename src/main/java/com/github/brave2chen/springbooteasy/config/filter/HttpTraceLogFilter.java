@@ -1,5 +1,6 @@
 package com.github.brave2chen.springbooteasy.config.filter;
 
+import cn.hutool.core.lang.UUID;
 import com.github.brave2chen.springbooteasy.constant.SystemConstant;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Http 请求日志记录 配置类
@@ -139,8 +139,8 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
     private void setMDCTraceId(HttpServletRequest request) {
         // 从请求头部获取traceId
         String traceId = request.getHeader(SystemConstant.TRACE_ID_REQUEST_HEADER);
-        // TODO 没有traceId则UUID生成一个，最好使用hutool的UUID来生成，其内部使用SecureRandom实现
-        traceId = Optional.ofNullable(traceId).orElse(UUID.randomUUID().toString()).replace("-", "");
+        // 没有traceId则UUID生成一个，最好使用hutool的UUID来生成，其内部使用SecureRandom实现
+        traceId = Optional.ofNullable(traceId).orElse(UUID.randomUUID().toString(true));
         // 将traceId放到MDC中
         MDC.put(TRACE_ID, traceId);
     }

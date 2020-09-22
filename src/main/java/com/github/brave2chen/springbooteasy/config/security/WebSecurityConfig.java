@@ -126,6 +126,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;
 
+    @Resource
+    private VerifyCodeFilter verifyCodeFilter;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
@@ -138,6 +141,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .cors().configurationSource(corsConfigurationSource()).and()
             .addFilterBefore(jwtTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(verifyCodeFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(new SetMDCUserFilter(), AnonymousAuthenticationFilter.class)
             .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)

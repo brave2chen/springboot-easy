@@ -14,7 +14,6 @@ import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
 import com.diboot.core.util.BeanUtils;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
-import com.github.brave2chen.springbooteasy.core.BaseEntity;
 import com.github.brave2chen.springbooteasy.core.DataEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
@@ -76,7 +75,6 @@ public class MybatisPlusConfig {
                 log.debug("start insert fill ....");
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof SecurityUser) {
-                    // TODO 匿名用户
                     this.strictInsertFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getCreateBy), Long.class, ((SecurityUser) principal).getId());
                     this.strictInsertFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getUpdateBy), Long.class, ((SecurityUser) principal).getId());
                 }
@@ -89,7 +87,6 @@ public class MybatisPlusConfig {
                 log.debug("start update fill ....");
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof SecurityUser) {
-                    // TODO 匿名用户
                     this.strictUpdateFill(metaObject, BeanUtils.convertToFieldName(DataEntity::getUpdateBy), Long.class, ((SecurityUser) principal).getId());
                 }
                 log.debug("end update fill ....");

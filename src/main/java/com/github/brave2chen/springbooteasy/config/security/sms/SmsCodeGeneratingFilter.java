@@ -1,6 +1,8 @@
 package com.github.brave2chen.springbooteasy.config.security.sms;
 
 import com.diboot.core.config.Cons;
+import com.diboot.core.vo.JsonResult;
+import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.filter.GenericFilterBean;
@@ -28,9 +30,14 @@ public class SmsCodeGeneratingFilter extends GenericFilterBean {
 
         if (isLoginUrlRequest(request)) {
             String mobile = obtainMobile(request);
+
+            SmsCodeUtil.sendCode(mobile);
+
             response.setCharacterEncoding(Cons.CHARSET_UTF8);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().print(SmsUtil.getCode(mobile));
+            response.getWriter().print(JsonUtil.stringify(JsonResult.OK()));
+            response.getWriter().flush();
+            response.getWriter().close();
             return;
         }
 

@@ -1,7 +1,7 @@
 package com.github.brave2chen.springbooteasy.config.security.sms;
 
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -53,8 +53,8 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         Assert.hasText(mobile, "手机号不能为空");
         Assert.hasText(code, "验证码为空");
 
-        if (!code.equals(SmsUtil.getCode(mobile))) {
-            throw new BadCredentialsException("验证码错误");
+        if (!SmsCodeUtil.validateCode(mobile, code)) {
+            throw new AuthenticationServiceException("验证码错误");
         }
     }
 
