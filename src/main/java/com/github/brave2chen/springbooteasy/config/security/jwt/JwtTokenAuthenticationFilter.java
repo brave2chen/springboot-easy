@@ -2,7 +2,7 @@ package com.github.brave2chen.springbooteasy.config.security.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -50,7 +50,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 String username = jwtTokenUtil.getUsernameFromToken(token);
 
                 if (username == null) {
-                    throw new BadCredentialsException("Invalid jwt authentication token");
+                    throw new AuthenticationServiceException("Invalid jwt authentication token");
                 }
 
                 if (authenticationIsRequired(username)) {

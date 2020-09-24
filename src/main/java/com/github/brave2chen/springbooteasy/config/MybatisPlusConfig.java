@@ -1,17 +1,18 @@
 package com.github.brave2chen.springbooteasy.config;
 
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
-import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
 import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
 import com.baomidou.mybatisplus.extension.injector.methods.LogicDeleteByIdWithFill;
-import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.diboot.core.util.BeanUtils;
 import com.github.brave2chen.springbooteasy.config.security.SecurityUser;
 import com.github.brave2chen.springbooteasy.core.DataEntity;
@@ -23,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,33 +38,36 @@ import java.util.List;
 @MapperScan(value = MybatisPlusConfig.MAPPER_PACKAGE)
 public class MybatisPlusConfig {
     public static final String MAPPER_PACKAGE = "com.github.brave2chen.springbooteasy.mapper";
-    public static final int PAGE_SIZE_LIMIT = 1000;
+    public static final long PAGE_SIZE_LIMIT = 1000;
 
     /**
      * mybatis-plus分页插件<br>
      * 文档：http://mp.baomidou.com<br>
      */
     @Bean
-    public PaginationInterceptor paginationInterceptor() {
-        PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
+    public MybatisPlusInterceptor paginationInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
-        // 设置请求的页面大于最大页后操作， true调回到首页，false 继续请求  默认false
-        paginationInterceptor.setOverflow(false);
+        // 多租户 插件 FIXME
 
-        // 设置最大单页限制数量，默认 500 条，-1 不受限制
-        paginationInterceptor.setLimit(PAGE_SIZE_LIMIT);
+        // 动态表名插件  FIXME
 
-        // 开启 count 的 join 优化，只针对部分 left join
-        paginationInterceptor.setCountSqlParser(new JsqlParserCountOptimize(true));
+        // 分页插件
+        interceptor.addInnerInterceptor(getPaginationInnerInterceptor());
 
-        // 攻击 SQL 阻断解析器: BlockAttackSqlParser
-        // 多租户 SQL 解析处理拦截器: TenantSqlParser
+        // 乐观锁插件
+        interceptor.addInnerInterceptor(getOptimisticLockerInnerInterceptor());
 
-        // 加入解析链
-        List<ISqlParser> sqlParserList = new ArrayList<>();
-        paginationInterceptor.setSqlParserList(sqlParserList);
+        // sql性能规范插件
 
-        return paginationInterceptor;
+        // 防止全表更新与删除插件
+
+        return interceptor;
+    }
+
+    @Bean
+    public ConfigurationCustomizer configurationCustomizer() {
+        return configuration -> configuration.setUseDeprecatedExecutor(false);
     }
 
     @Bean
@@ -113,10 +116,21 @@ public class MybatisPlusConfig {
         };
     }
 
-    @Bean
-    public OptimisticLockerInterceptor optimisticLockerInterceptor() {
-        return new OptimisticLockerInterceptor();
+
+    private PaginationInnerInterceptor getPaginationInnerInterceptor() {
+        // 分页插件
+        PaginationInnerInterceptor paginationInterceptor = new PaginationInnerInterceptor(DbType.MYSQL);
+
+        // 设置请求的页面大于最大页后操作， true调回到首页，false 继续请求  默认false
+        paginationInterceptor.setOverflow(false);
+
+        // 设置最大单页限制数量，默认 500 条，-1 不受限制
+        paginationInterceptor.setMaxLimit(PAGE_SIZE_LIMIT);
+        return paginationInterceptor;
     }
 
+    private OptimisticLockerInnerInterceptor getOptimisticLockerInnerInterceptor() {
+        return new OptimisticLockerInnerInterceptor();
+    }
 
 }
