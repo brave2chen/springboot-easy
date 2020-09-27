@@ -187,6 +187,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 放开静态资源访问、swagger接口访问
-        web.ignoring().antMatchers("/**/*.*", "/swagger-resources/**", "/v2/**", "/error");
+        web.ignoring().antMatchers("/**/*.*", "/swagger-resources/**", "/v2/**", "/error", "/druid/**");
     }
 }
