@@ -2,6 +2,7 @@ package com.github.brave2chen.springbooteasy.config.security;
 
 import com.diboot.core.config.Cons;
 import com.diboot.core.vo.JsonResult;
+import com.github.brave2chen.springbooteasy.config.security.jwt.JwtTokenAuthenticationFilter;
 import com.github.brave2chen.springbooteasy.config.security.jwt.JwtTokenUtil;
 import com.github.brave2chen.springbooteasy.entity.Role;
 import com.github.brave2chen.springbooteasy.service.UserService;
@@ -44,7 +45,7 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String token = jwtTokenUtil.generateToken(user);
+        String token = JwtTokenAuthenticationFilter.TOKEN_TYPE + jwtTokenUtil.generateToken(user);
         response.getWriter().print(JsonUtil.stringify((JsonResult.OK(new HashMap(2) {{
             put("token", token);
         }}))));

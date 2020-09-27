@@ -36,6 +36,7 @@ public class SetMDCUserFilter extends OncePerRequestFilter {
     private void setUser() {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         MDC.put(USER, name);
+        log.trace("MDC set user = {}", name);
     }
 
 }

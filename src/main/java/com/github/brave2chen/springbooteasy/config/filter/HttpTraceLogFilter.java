@@ -73,11 +73,13 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         }
         long startTime = System.currentTimeMillis();
         try {
+            log.trace("Start Request: {} \"{}\"", request.getMethod().toUpperCase(), path);
             filterChain.doFilter(request, response);
         } finally {
+            log.trace("End Request: {} \"{}\"", request.getMethod().toUpperCase(), path);
             long latency = System.currentTimeMillis() - startTime;
             boolean isRequestBody = request.getContentType() != null && request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE);
-            log.info("{} \"{}\" TimeTaken: {} ms , {}: {}, ResponseBody: {}",
+            log.debug("{} \"{}\" TimeTaken: {} ms , {}: {}, ResponseBody: {}",
                     request.getMethod().toUpperCase(),
                     path,
                     latency,
@@ -143,6 +145,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         traceId = Optional.ofNullable(traceId).orElse(UUID.randomUUID().toString(true));
         // 将traceId放到MDC中
         MDC.put(TRACE_ID, traceId);
+        log.trace("MDC set traceId = {}", traceId);
     }
 
     /**
@@ -150,5 +153,6 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
      */
     private void clearMDC() {
         MDC.clear();
+        log.trace("MDC cleared");
     }
 }

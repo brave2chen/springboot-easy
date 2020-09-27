@@ -49,29 +49,25 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
                 String username = jwtTokenUtil.getUsernameFromToken(token);
 
-                if (username == null) {
+                if (username == null || jwtTokenUtil.isTokenExpired(token)) {
                     throw new AuthenticationServiceException("Invalid jwt authentication token");
                 }
 
                 if (authenticationIsRequired(username)) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    // 将用户信息存入 authentication，方便后续校验
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-
-                    if (jwtTokenUtil.validateToken(token, userDetails)) {
-                        // 将用户信息存入 authentication，方便后续校验
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                        // 将 authentication 存入 ThreadLocal，方便后续获取用户信息
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                    // 将 authentication 存入 ThreadLocal，方便后续获取用户信息
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
+            chain.doFilter(request, response);
         } catch (AuthenticationException failed) {
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(request, response, failed);
         }
-        chain.doFilter(request, response);
     }
 
     private boolean isJwtToken(String token) {
