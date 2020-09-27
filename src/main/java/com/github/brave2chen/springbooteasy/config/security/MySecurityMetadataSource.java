@@ -8,7 +8,6 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +39,6 @@ public class MySecurityMetadataSource implements FilterInvocationSecurityMetadat
         this.authorityService = authorityService;
     }
 
-    @PostConstruct
     private void init() {
         authorityService.list().stream().forEach(authority -> {
             urlRoleMap.put(new AntPathRequestMatcher(authority.getPath(), authority.getMethod()), authority.getAuthority());
