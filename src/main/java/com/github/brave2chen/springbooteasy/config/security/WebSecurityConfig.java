@@ -1,7 +1,10 @@
 package com.github.brave2chen.springbooteasy.config.security;
 
+import cn.hutool.core.lang.Validator;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.brave2chen.springbooteasy.config.filter.SetMDCUserFilter;
+import com.github.brave2chen.springbooteasy.config.security.email.EmailAuthenticationFilter;
+import com.github.brave2chen.springbooteasy.config.security.email.EmailAuthenticationSecurityConfig;
 import com.github.brave2chen.springbooteasy.config.security.jwt.JwtTokenAuthenticationFilter;
 import com.github.brave2chen.springbooteasy.config.security.sms.SmsAuthenticationFilter;
 import com.github.brave2chen.springbooteasy.config.security.sms.SmsAuthenticationSecurityConfig;
@@ -18,6 +21,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -49,15 +53,6 @@ import java.util.Arrays;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
-    private UserService userService;
-
-    @Resource
-    private RoleService roleService;
-
-    @Resource
-    private AuthorityService authorityService;
-
-    @Resource
     private MySecurityMetadataSource securityMetadataSource;
 
     @Resource
@@ -76,25 +71,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private MyLogoutSuccessHandler logoutSuccessHandler;
 
     @Resource
+    private MyUserDetailsService userDetailsService;
+
+    @Resource
     private JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        return username -> {
-            User user = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getUsername, username));
-            if (user == null) {
-                throw new UsernameNotFoundException(username + "用户不存在");
-            }
-            UserWithAuth userWithAuth = userService.convertToViewObject(user, UserWithAuth.class);
-            userWithAuth.setRoles(roleService.convertToViewObjectList(userWithAuth.getRoles(), RoleWithAuth.class));
-            return SecurityUser.of(userWithAuth);
-        };
     }
 
     @Bean
@@ -127,11 +111,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;
 
     @Resource
+    private EmailAuthenticationSecurityConfig emailAuthenticationSecurityConfig;
+
+    @Resource
     private VerifyCodeFilter verifyCodeFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -162,6 +149,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(SmsAuthenticationFilter.SMS_LOGIN_URL).permitAll()
+                .and()
+            .apply(emailAuthenticationSecurityConfig)
+                .and()
+                .authorizeRequests()
+                .antMatchers(EmailAuthenticationFilter.EMAIL_LOGIN_URL).permitAll()
                 .and()
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

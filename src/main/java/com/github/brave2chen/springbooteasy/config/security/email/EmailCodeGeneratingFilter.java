@@ -1,7 +1,9 @@
-package com.github.brave2chen.springbooteasy.config.security.sms;
+package com.github.brave2chen.springbooteasy.config.security.email;
 
 import com.diboot.core.config.Cons;
 import com.diboot.core.vo.JsonResult;
+import com.github.brave2chen.springbooteasy.config.security.email.EmailAuthenticationFilter;
+import com.github.brave2chen.springbooteasy.config.security.email.EmailCodeUtil;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -16,12 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * SmsGenerateCodeFilter
+ * EmailGenerateCodeFilter
  *
  * @author brave2chen
  * @date 2020-09-21
  */
-public class SmsCodeGeneratingFilter extends GenericFilterBean {
+public class EmailCodeGeneratingFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -29,10 +31,10 @@ public class SmsCodeGeneratingFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) res;
 
         if (isLoginUrlRequest(request)) {
-            String mobile = obtainMobile(request);
+            String email = obtainMobile(request);
 
-            // TODO 需要验证用户信息，获取真实mobile
-            SmsCodeUtil.sendCode(mobile);
+            // TODO 需要验证用户信息，获取真实email
+            EmailCodeUtil.sendCode(email);
 
             response.setCharacterEncoding(Cons.CHARSET_UTF8);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -46,7 +48,7 @@ public class SmsCodeGeneratingFilter extends GenericFilterBean {
     }
 
     private boolean isLoginUrlRequest(HttpServletRequest request) {
-        return matches(request, SmsAuthenticationFilter.SMS_LOGIN_URL);
+        return matches(request, EmailAuthenticationFilter.EMAIL_LOGIN_URL);
     }
 
     private boolean matches(HttpServletRequest request, String url) {
@@ -66,6 +68,6 @@ public class SmsCodeGeneratingFilter extends GenericFilterBean {
 
     @Nullable
     protected String obtainMobile(HttpServletRequest request) {
-        return request.getParameter(SmsAuthenticationFilter.SPRING_SECURITY_FORM_MOBILE_KEY);
+        return request.getParameter(EmailAuthenticationFilter.SPRING_SECURITY_FORM_MOBILE_KEY);
     }
 }

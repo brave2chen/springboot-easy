@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * 登录图片验证码 过滤器
  *
- * @author chenqy28
+ * @author brave2chen
  */
 @Component
 @Slf4j

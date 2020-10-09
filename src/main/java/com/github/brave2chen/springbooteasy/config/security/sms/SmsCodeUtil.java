@@ -1,13 +1,13 @@
 package com.github.brave2chen.springbooteasy.config.security.sms;
 
-import com.github.brave2chen.springbooteasy.util.PhoneFormatCheckUtils;
+import cn.hutool.core.lang.Validator;
 import com.github.brave2chen.springbooteasy.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.Assert;
 
 /**
- * SmsUtil
+ * SmsCodeUtil
  *
  * @author brave2chen
  * @date 2020-09-21
@@ -35,7 +35,7 @@ public class SmsCodeUtil {
      */
     public static void sendCode(String mobile) {
         Assert.hasText(mobile, "手机号不能为空");
-        Assert.isTrue(PhoneFormatCheckUtils.isPhoneLegal(mobile), "手机号格式不正确");
+        Assert.isTrue(Validator.isMobile(mobile), "手机号格式不正确");
         Boolean canRetry = RedisUtil.hget(SMS_CODE_RETRY_KEY, mobile);
         Assert.isTrue(canRetry == null || canRetry, "请求手机验证码太频繁，请稍后重试！");
 
@@ -56,10 +56,25 @@ public class SmsCodeUtil {
      */
     public static boolean validateCode(String mobile, String code) {
         Assert.hasText(mobile, "手机号不能为空");
-        Assert.isTrue(PhoneFormatCheckUtils.isPhoneLegal(mobile), "手机号格式不正确");
+        Assert.isTrue(Validator.isMobile(mobile), "手机号格式不正确");
         Assert.hasText(code, "手机验证码不能为空");
         String realCode = RedisUtil.hget(SMS_CODE_KEY, mobile);
         log.debug("手机开始校验验证码，mobile: {}, code: {}, realCode: {}", mobile, code, realCode);
         return code.equals(realCode);
+    }
+
+    /**
+     * 清除手机验证码
+     *
+     * @param mobile
+     */
+    public static void clearCode(String mobile) {
+        Assert.hasText(mobile, "手机号不能为空");
+        Assert.isTrue(Validator.isMobile(mobile), "手机号格式不正确");
+
+        log.debug("清除手机验证码，mobile: {}", mobile);
+
+        RedisUtil.hdel(SMS_CODE_RETRY_KEY, mobile);
+        RedisUtil.hdel(SMS_CODE_KEY, mobile);
     }
 }

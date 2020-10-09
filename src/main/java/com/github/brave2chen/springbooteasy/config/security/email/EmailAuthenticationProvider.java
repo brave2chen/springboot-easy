@@ -1,4 +1,4 @@
-package com.github.brave2chen.springbooteasy.config.security.sms;
+package com.github.brave2chen.springbooteasy.config.security.email;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -12,11 +12,11 @@ import org.springframework.util.Assert;
 /**
  * @author brave2chen
  */
-public class SmsAuthenticationProvider implements AuthenticationProvider {
+public class EmailAuthenticationProvider implements AuthenticationProvider {
 
     private UserDetailsService userDetailsService;
 
-    public SmsAuthenticationProvider(UserDetailsService userDetailsService) {
+    public EmailAuthenticationProvider(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -30,9 +30,9 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        SmsAuthenticationToken authenticationToken = (SmsAuthenticationToken) authentication;
+        EmailAuthenticationToken authenticationToken = (EmailAuthenticationToken) authentication;
 
-        this.checkSmsCode(authenticationToken);
+        this.checkEmailCode(authenticationToken);
 
         UserDetails user = userDetailsService.loadUserByUsername((String) authenticationToken.getPrincipal());
 
@@ -40,24 +40,24 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
             throw new InternalAuthenticationServiceException("无法获取用户信息");
         }
 
-        SmsAuthenticationToken authenticationResult = new SmsAuthenticationToken(user, null, user.getAuthorities());
+        EmailAuthenticationToken authenticationResult = new EmailAuthenticationToken(user, null, user.getAuthorities());
 
         authenticationResult.setDetails(authenticationToken.getDetails());
 
         return authenticationResult;
     }
 
-    private void checkSmsCode(SmsAuthenticationToken authenticationToken) {
+    private void checkEmailCode(EmailAuthenticationToken authenticationToken) {
         Object principal = authenticationToken.getPrincipal();
         Object credentials = authenticationToken.getCredentials();
-        Assert.notNull(principal, "手机号不能为空");
+        Assert.notNull(principal, "邮箱号不能为空");
         Assert.notNull(credentials, "验证码为空");
-        String mobile = principal.toString();
+        String email = principal.toString();
         String code = credentials.toString();
-        Assert.hasText(mobile, "手机号不能为空");
+        Assert.hasText(email, "邮箱号不能为空");
         Assert.hasText(code, "验证码为空");
 
-        if (!SmsCodeUtil.validateCode(mobile, code)) {
+        if (!EmailCodeUtil.validateCode(email, code)) {
             throw new AuthenticationServiceException("验证码错误");
         }
     }
@@ -65,6 +65,6 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return SmsAuthenticationToken.class.isAssignableFrom(authentication);
+        return EmailAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

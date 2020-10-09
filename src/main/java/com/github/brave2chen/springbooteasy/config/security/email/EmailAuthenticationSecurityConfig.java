@@ -1,4 +1,4 @@
-package com.github.brave2chen.springbooteasy.config.security.sms;
+package com.github.brave2chen.springbooteasy.config.security.email;
 
 import com.github.brave2chen.springbooteasy.config.security.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
  * @author brave2chen
  */
 @Component
-public class SmsAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class EmailAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
-    private SmsCodeGeneratingFilter smsCodeGeneratingFilter = new SmsCodeGeneratingFilter();
+    private EmailCodeGeneratingFilter emailCodeGeneratingFilter = new EmailCodeGeneratingFilter();
 
     @Autowired
     private AuthenticationSuccessHandler myAuthenticationSuccessHandler;
@@ -32,16 +32,16 @@ public class SmsAuthenticationSecurityConfig extends SecurityConfigurerAdapter<D
     @Override
     public void configure(HttpSecurity http) throws Exception {
 
-        SmsAuthenticationFilter smsAuthenticationFilter = new SmsAuthenticationFilter();
-        smsAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        smsAuthenticationFilter.setAuthenticationSuccessHandler(myAuthenticationSuccessHandler);
-        smsAuthenticationFilter.setAuthenticationFailureHandler(myAuthenticationFailureHandler);
+        EmailAuthenticationFilter emailAuthenticationFilter = new EmailAuthenticationFilter();
+        emailAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+        emailAuthenticationFilter.setAuthenticationSuccessHandler(myAuthenticationSuccessHandler);
+        emailAuthenticationFilter.setAuthenticationFailureHandler(myAuthenticationFailureHandler);
 
-        SmsAuthenticationProvider smsAuthenticationProvider = new SmsAuthenticationProvider(userDetailsService);
+        EmailAuthenticationProvider emailAuthenticationProvider = new EmailAuthenticationProvider(userDetailsService);
 
-        http.authenticationProvider(smsAuthenticationProvider)
-                .addFilterAfter(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.authenticationProvider(emailAuthenticationProvider)
+                .addFilterAfter(emailAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterAfter(smsCodeGeneratingFilter, DefaultLoginPageGeneratingFilter.class);
+        http.addFilterAfter(emailCodeGeneratingFilter, DefaultLoginPageGeneratingFilter.class);
     }
 }

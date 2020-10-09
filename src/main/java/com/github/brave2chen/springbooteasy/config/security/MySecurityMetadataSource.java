@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * MySecurityMetadataSource
  *
- * @author chenqy28
+ * @author brave2chen
  * @date 2020-09-17
  */
 @Component
