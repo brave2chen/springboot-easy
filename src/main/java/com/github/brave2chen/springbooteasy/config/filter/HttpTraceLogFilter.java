@@ -4,7 +4,6 @@ import cn.hutool.core.lang.UUID;
 import com.github.brave2chen.springbooteasy.constant.SystemConstant;
 import com.github.brave2chen.springbooteasy.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
@@ -54,12 +53,19 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         this.setMDCTraceId(request);
 
         String path = request.getRequestURI();
-        if (!isRequestValid(request)
-                || this.pathMatcher.match(IGNORE_TRACE_PATH, path)
-                || Objects.equals(IGNORE_CONTENT_TYPE, request.getContentType())
-        ) {
+        if (!isRequestValid(request) || this.pathMatcher.match(IGNORE_TRACE_PATH, path)) {
             try {
                 filterChain.doFilter(request, response);
+            } finally {
+                clearMDC();
+            }
+            return;
+        }
+        if (Objects.equals(IGNORE_CONTENT_TYPE, request.getContentType())) {
+            try {
+                log.trace("Start Multipart Request: {} \"{}\"", request.getMethod().toUpperCase(), path);
+                filterChain.doFilter(request, response);
+                log.trace("End Multipart Request: {} \"{}\"", request.getMethod().toUpperCase(), path);
             } finally {
                 clearMDC();
             }
@@ -107,12 +113,12 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
         if (wrapper != null) {
             try {
-                requestBody = IOUtils.toString(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
-                HashMap map = JsonUtil.parse(requestBody, HashMap.class);
-                requestBody = JsonUtil.stringify(map);
+                requestBody = new String(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
             } catch (IOException e) {
                 // NOOP
             }
+            HashMap map = JsonUtil.parse(requestBody, HashMap.class);
+            requestBody = JsonUtil.stringify(map);
         }
         return requestBody;
     }
@@ -122,7 +128,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
             try {
-                responseBody = IOUtils.toString(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
+                responseBody = new String(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
             } catch (IOException e) {
                 // NOOP
             }
