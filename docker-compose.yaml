@@ -1,0 +1,22 @@
+version: "3"
+services:
+  springboot-easy:
+    container_name: springboot-easy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      TZ: Asia/Shanghai
+      server.port: 8080
+      spring.datasource.url: jdbc:mysql://mysql:3306/springboot-easy?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+      spring.datasource.username: root
+      spring.datasource.password: root
+    networks:
+      - docker-bridge
+
+# 事先创建好的 docker bridge 网络，
+networks:
+  docker-bridge:
+    external: true
