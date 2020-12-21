@@ -45,7 +45,7 @@ public class DictionaryController extends BaseController {
      */
     @GetMapping("")
     public JsonResult getViewObjectListMapping(Dictionary entity, Pagination pagination) throws Exception {
-        QueryWrapper<Dictionary> queryWrapper = super.buildQueryWrapper(entity);
+        LambdaQueryWrapper<Dictionary> queryWrapper = super.buildQueryWrapper(entity).lambda().eq(Dictionary::getParentId, 0L);
         List<DictionaryVO> voList = dictionaryService.getViewObjectList(queryWrapper, pagination, DictionaryVO.class);
         return JsonResult.OK(voList).bindPagination(pagination);
     }
@@ -59,8 +59,7 @@ public class DictionaryController extends BaseController {
      */
     @PostMapping("")
     public Boolean createEntityMapping(@RequestBody @Valid DictionaryVO entityVO) throws Exception {
-        boolean success = dictionaryService.createDictAndChildren(entityVO);
-        return success;
+        return dictionaryService.createDictAndChildren(entityVO);
     }
 
     /**
@@ -82,9 +81,7 @@ public class DictionaryController extends BaseController {
      */
     @PutMapping("/{id:\\d+}")
     public Boolean updateEntityMapping(@PathVariable("id") Long id, @Valid @RequestBody DictionaryVO entityVO) throws Exception {
-        entityVO.setId(id);
-        boolean success = dictionaryService.updateDictAndChildren(entityVO);
-        return success;
+        return dictionaryService.updateDictAndChildren((DictionaryVO) entityVO.setId(id));
     }
 
     /**
@@ -95,8 +92,7 @@ public class DictionaryController extends BaseController {
      */
     @DeleteMapping("/{id:\\d+}")
     public Boolean deleteEntityMapping(@PathVariable("id") Long id) throws Exception {
-        boolean success = dictionaryService.deleteDictAndChildren(id);
-        return success;
+        return dictionaryService.deleteDictAndChildren(id);
     }
 
     /**
@@ -107,8 +103,7 @@ public class DictionaryController extends BaseController {
      */
     @GetMapping("/items/{type}")
     public List<KeyValue> getItems(@PathVariable("type") @NotBlank(message = "type参数未指定") String type) throws Exception {
-        List<KeyValue> itemsList = dictionaryService.getKeyValueList(type);
-        return itemsList;
+        return dictionaryService.getKeyValueList(type);
     }
 
     /**
@@ -125,7 +120,6 @@ public class DictionaryController extends BaseController {
         if (V.notEmpty(id)) {
             wrapper.ne(Dictionary::getId, id);
         }
-        boolean alreadyExists = dictionaryService.exists(wrapper);
-        return alreadyExists;
+        return dictionaryService.exists(wrapper);
     }
 }
