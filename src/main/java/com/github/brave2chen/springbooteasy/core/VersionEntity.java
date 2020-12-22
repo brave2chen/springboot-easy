@@ -27,10 +27,13 @@ import lombok.experimental.Accessors;
  * @author brave2chen
  */
 @Getter
-@Setter
-@Accessors(chain = true)
 public abstract class VersionEntity extends BaseEntity {
     @ApiModelProperty(value = "版本号", hidden = true)
     @Version
     private Integer version;
+
+    public <T extends VersionEntity> T setVersion(Integer version) {
+        this.version = version;
+        return (T) this;
+    }
 }

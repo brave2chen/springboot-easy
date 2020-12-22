@@ -7,7 +7,6 @@ import com.github.brave2chen.springbooteasy.core.BaseController;
 import com.github.brave2chen.springbooteasy.dto.RoleWithAuth;
 import com.github.brave2chen.springbooteasy.entity.Role;
 import com.github.brave2chen.springbooteasy.entity.RoleAuthority;
-import com.github.brave2chen.springbooteasy.entity.UserRole;
 import com.github.brave2chen.springbooteasy.service.RoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -61,8 +60,7 @@ public class RoleController extends BaseController {
     @ApiOperation("更新角色")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody Role entity) throws Exception {
-        entity.setId(id);
-        return service.updateById(entity);
+        return service.updateById(entity.setId(id));
     }
 
     @ApiOperation("删除角色")

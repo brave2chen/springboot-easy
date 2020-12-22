@@ -18,8 +18,6 @@ package com.github.brave2chen.springbooteasy.core;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -32,8 +30,6 @@ import java.util.Date;
  * @date 2018/12/27
  */
 @Getter
-@Setter
-@Accessors(chain = true)
 public abstract class BaseEntity implements Serializable {
     @ApiModelProperty(value = "主键")
     @TableId(value = "id", type = IdType.AUTO)
@@ -46,4 +42,19 @@ public abstract class BaseEntity implements Serializable {
     @ApiModelProperty(value = "创建时间")
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Date createTime;
+
+    public <T extends BaseEntity> T setId(Long id) {
+        this.id = id;
+        return (T) this;
+    }
+
+    public <T extends BaseEntity> T setCreateBy(Long createBy) {
+        this.createBy = createBy;
+        return (T) this;
+    }
+
+    public <T extends BaseEntity> T setCreateTime(Date createTime) {
+        this.createTime = createTime;
+        return (T) this;
+    }
 }

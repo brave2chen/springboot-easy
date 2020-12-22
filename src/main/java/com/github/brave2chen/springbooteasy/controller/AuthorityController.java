@@ -62,8 +62,7 @@ public class AuthorityController extends BaseController {
     @ApiOperation("更新权限")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody Authority entity) throws Exception {
-        entity.setId(id);
-        return service.updateById(entity);
+        return service.updateById(entity.setId(id));
     }
 
     @ApiOperation("删除权限")

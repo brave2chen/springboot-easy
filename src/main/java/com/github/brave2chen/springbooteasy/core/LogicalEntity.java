@@ -20,20 +20,22 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 /**
  * LogicalEntity
+ *
  * @author brave2chen
  */
 @Getter
-@Setter
-@Accessors(chain = true)
 public abstract class LogicalEntity extends BaseEntity {
     @ApiModelProperty(value = "删除标记", hidden = true)
     @TableField("is_deleted")
     @TableLogic
     @JsonIgnore
     private Boolean deleted;
+
+    public <T extends LogicalEntity> T setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+        return (T) this;
+    }
 }

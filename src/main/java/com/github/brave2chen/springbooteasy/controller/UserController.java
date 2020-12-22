@@ -1,6 +1,7 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.diboot.core.controller.BaseController;
 import com.diboot.core.util.BeanUtils;
@@ -50,21 +51,19 @@ public class UserController extends BaseController {
     @GetMapping("/info")
     public UserWithRole info() throws Exception {
         SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return (UserWithRole) UserWithRole.from(user.getUser()).setPassword("******");
+        return (UserWithRole) UserWithRole.from(user.getUser()).setPassword(PASSWORD_MASK);
     }
 
     @ApiOperation("分页查询 用户 列表")
     @GetMapping("")
     public JsonResult page(@Valid UserQuery user, Pagination pagination) throws Exception {
-        QueryWrapper<User> queryWrapper = super.buildQueryWrapper(user);
-        if (StringUtils.isNotBlank(user.getIdentity())) {
-            queryWrapper.and(w -> w
-                    .or().like(BeanUtils.convertToFieldName(User::getUsername), user.getIdentity())
-                    .or().like(BeanUtils.convertToFieldName(User::getEmail), user.getIdentity())
-                    .or().like(BeanUtils.convertToFieldName(User::getMobile), user.getIdentity())
-                    .or().like(BeanUtils.convertToFieldName(User::getNickname), user.getIdentity())
-            );
-        }
+        LambdaQueryWrapper<UserQuery> queryWrapper = super.buildLambdaQueryWrapper(user);
+        queryWrapper.and(StringUtils.isNotBlank(user.getIdentity()), w -> w
+                .or().like(User::getUsername, user.getIdentity())
+                .or().like(User::getEmail, user.getIdentity())
+                .or().like(User::getMobile, user.getIdentity())
+                .or().like(User::getNickname, user.getIdentity())
+        );
         List<User> users = service.getEntityList(queryWrapper, pagination);
         users.forEach(u -> u.setPassword(PASSWORD_MASK));
         return JsonResult.OK(users).bindPagination(pagination);
@@ -79,20 +78,19 @@ public class UserController extends BaseController {
     @ApiOperation("创建用户")
     @PostMapping("")
     public boolean save(@Valid @RequestBody User user) throws Exception {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return service.save(user);
+        return service.save(user.setPassword(passwordEncoder.encode(user.getPassword())));
     }
 
     @ApiOperation("更新用户")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody User user) throws Exception {
-        user.setId(id);
-        if (user.getPassword() != null && PASSWORD_MASK.equals(user.getPassword())) {
+        boolean hasNewPassword = user.getPassword() != null && !PASSWORD_MASK.equals(user.getPassword());
+        if (hasNewPassword) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else {
             user.setPassword(null);
         }
-        return service.updateById(user);
+        return service.updateById(user.setId(id));
     }
 
     @ApiOperation("删除用户")

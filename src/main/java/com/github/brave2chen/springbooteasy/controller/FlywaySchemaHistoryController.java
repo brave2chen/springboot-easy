@@ -37,8 +37,9 @@ public class FlywaySchemaHistoryController extends BaseController {
     @ApiOperation("分页查询 Flyway版本 列表")
     @GetMapping("")
     public JsonResult page(@Valid FlywaySchemaHistory entity, Pagination pagination) throws Exception {
+        pagination.clearDefaultOrder();
+
         QueryWrapper<FlywaySchemaHistory> queryWrapper = super.buildQueryWrapper(entity);
-        pagination.setOrderBy(null);
         List<FlywaySchemaHistory> list = service.getEntityList(queryWrapper, pagination);
 
         return JsonResult.OK(list).bindPagination(pagination);

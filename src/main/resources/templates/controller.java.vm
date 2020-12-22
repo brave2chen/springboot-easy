@@ -54,7 +54,7 @@ public class ${table.controllerName} {
     @ApiOperation("分页查询 $!{table.comment} 列表")
     @GetMapping("")
     public JsonResult page(@Valid ${entity} entity, Pagination pagination) throws Exception {
-        QueryWrapper<${entity}> queryWrapper = super.buildQueryWrapper(entity);
+        LambdaQueryWrapper<${entity}> queryWrapper = super.buildLambdaQueryWrapper(entity);
 
         List<${entity}> list = service.getEntityList(queryWrapper, pagination);
 
@@ -76,8 +76,7 @@ public class ${table.controllerName} {
     @ApiOperation("更新$!{table.comment}")
     @PutMapping("/{id:\\d+}")
     public boolean update(@PathVariable Long id, @Valid @RequestBody ${entity} entity) throws Exception {
-        entity.setId(id);
-        return service.updateById(entity);
+        return service.updateById(entity.setId(id));
     }
 
     @ApiOperation("删除$!{table.comment}")

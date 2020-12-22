@@ -1,7 +1,7 @@
 package com.github.brave2chen.springbooteasy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.diboot.core.controller.BaseController;
 import com.diboot.core.entity.Dictionary;
 import com.diboot.core.service.DictionaryService;
@@ -45,7 +45,7 @@ public class DictionaryController extends BaseController {
      */
     @GetMapping("")
     public JsonResult getViewObjectListMapping(Dictionary entity, Pagination pagination) throws Exception {
-        LambdaQueryWrapper<Dictionary> queryWrapper = super.buildQueryWrapper(entity).lambda().eq(Dictionary::getParentId, 0L);
+        LambdaQueryWrapper<Dictionary> queryWrapper = super.buildLambdaQueryWrapper(entity).eq(Dictionary::getParentId, 0L);
         List<DictionaryVO> voList = dictionaryService.getViewObjectList(queryWrapper, pagination, DictionaryVO.class);
         return JsonResult.OK(voList).bindPagination(pagination);
     }
@@ -64,6 +64,7 @@ public class DictionaryController extends BaseController {
 
     /**
      * 根据资源id查询ViewObject
+     *
      * @param id ID
      * @return
      * @throws Exception
@@ -75,6 +76,7 @@ public class DictionaryController extends BaseController {
 
     /**
      * 根据ID更新资源对象
+     *
      * @param entityVO
      * @return JsonResult
      * @throws Exception
@@ -86,6 +88,7 @@ public class DictionaryController extends BaseController {
 
     /**
      * 根据id删除资源对象
+     *
      * @param id
      * @return
      * @throws Exception
@@ -97,6 +100,7 @@ public class DictionaryController extends BaseController {
 
     /**
      * 获取数据字典数据列表
+     *
      * @param type
      * @return
      * @throws Exception
@@ -115,11 +119,12 @@ public class DictionaryController extends BaseController {
      */
     @GetMapping("/checkTypeDuplicate")
     public boolean checkTypeDuplicate(@RequestParam(required = false) Long id, @NotBlank(message = "type参数未指定") String type) {
-        LambdaQueryWrapper<Dictionary> wrapper = new LambdaQueryWrapper();
-        wrapper.select(Dictionary::getId).eq(Dictionary::getType, type).eq(Dictionary::getParentId, 0);
-        if (V.notEmpty(id)) {
-            wrapper.ne(Dictionary::getId, id);
-        }
+        LambdaQueryWrapper<Dictionary> wrapper = Wrappers.lambdaQuery();
+        wrapper.select(Dictionary::getId)
+                .eq(Dictionary::getType, type)
+                .eq(Dictionary::getParentId, 0);
+
+        wrapper.ne(V.notEmpty(id), Dictionary::getId, id);
         return dictionaryService.exists(wrapper);
     }
 }

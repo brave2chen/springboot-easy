@@ -20,8 +20,6 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -33,8 +31,6 @@ import java.util.Date;
  * @date 2018/12/27
  */
 @Getter
-@Setter
-@Accessors(chain = true)
 public abstract class DataEntity extends BaseEntity {
     @ApiModelProperty(value = "更新用户")
     @TableField(fill = FieldFill.INSERT_UPDATE)
@@ -43,4 +39,9 @@ public abstract class DataEntity extends BaseEntity {
     @ApiModelProperty(value = "更新时间")
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Date updateTime;
+
+    public <T extends DataEntity> T setUpdateBy(Long updateBy) {
+        this.updateBy = updateBy;
+        return (T) this;
+    }
 }
