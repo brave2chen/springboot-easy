@@ -13,3 +13,13 @@ Content-Type: application/x-www-form-urlencoded
 Accept: application/json
 
 ###
+GET http://localhost:12345/test
+Authorization: Basic YWRtaW46MTIzNDU2
+x-b3-traceid: 613e28d05da96027
+x-b3-spanid: 7e1989e720c77ce6
+x-b3-parentspanid: 613e28d05da96027
+x-b3-sampled: 1
+baggage-uid: chenqy28
+Accept: application/json
+
+###

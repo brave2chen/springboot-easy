@@ -24,9 +24,43 @@
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <diboot-core.version>2.1.2</diboot-core.version>
         <spring-statemachine.version>2.2.0.RELEASE</spring-statemachine.version>
+        <opentracing-spring-jaeger-starter.version>3.2.2</opentracing-spring-jaeger-starter.version>
+        <opentracing-spring-tracer-configuration-starter.version>0.3.1</opentracing-spring-tracer-configuration-starter.version>
+        <opentracing-spring-web-starter.version>4.1.0</opentracing-spring-web-starter.version>
+        <opentracing-okhttp3.version>3.0.0</opentracing-okhttp3.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-jaeger-starter</artifactId>
+            <version>${opentracing-spring-jaeger-starter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-tracer-configuration-starter</artifactId>
+            <version>${opentracing-spring-tracer-configuration-starter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-web-starter</artifactId>
+            <version>${opentracing-spring-web-starter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-okhttp3</artifactId>
+            <version>${opentracing-okhttp3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
