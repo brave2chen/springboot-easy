@@ -23,15 +23,15 @@ import javax.annotation.PostConstruct;
 @Validated
 @RequestMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TestController {
-
     @Autowired
     private MeterRegistry meterRegistry;
+
 
     private Counter counter;
 
     @PostConstruct
     private void init() {
-        counter = meterRegistry.counter("app_requests_method_count", "method", "hello");
+        counter = meterRegistry.counter("app.requests.method.count", "method", "hello");
     }
 
     @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST})
